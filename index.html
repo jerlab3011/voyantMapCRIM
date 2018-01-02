@@ -60,7 +60,11 @@
         <div id="popup-content"></div>
     </div>
     <div>
-        Filter section
+        Author:<input type="text" id="author">
+        Title:<input type="text" id="title">
+        Between:<input type="number" id="yearBegin">
+        and <input type="number" id="yearEnd">
+        <button id="filterButton">Filter</button>
     </div>
     <script>
 
@@ -344,7 +348,7 @@
             }
         });
 
-        document.onkeyup = (e) => {
+        document.getElementById("filterButton").onclick = () => {
             const layers = map.getLayers();
             let i = 0;
             while(layers.item(i).type !== "VECTOR" || layers.item(i).get("selected")) {
@@ -362,7 +366,15 @@
                         travelsData.forEach((travel) => {
                             const from = travel.coordinates[0];
                             const to = travel.coordinates[1];
-                            const infos = travel.infos.filter((info) => info.author === "Jerome Labonte");
+                            const author = document.getElementById("author").value;
+                            const title = document.getElementById("title").value;
+                            const yearBegin = document.getElementById("yearBegin").value;
+                            const yearEnd = document.getElementById("yearEnd").value;
+                            let infos = travel.infos.filter((info) => info.author.includes(author));
+                            infos = infos.filter((info) => info.title.includes(title));
+                            infos = yearBegin == "" ? infos : infos.filter((info) => info.year >= yearBegin);
+                            infos = yearEnd == "" ? infos : infos.filter((info) => info.year <= yearEnd);
+
                             if(infos.length !== 0){
                                 const text = travel.description + "(" + infos.length + ")";
                                 // create an arc circle between the two locations
