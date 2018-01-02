@@ -1,0 +1,1306 @@
+{
+    "travels": [
+        {
+            "coordinates": [
+                [
+                    43.449928,
+                    39.956589
+                ],
+                [
+                    55.606186,
+                    49.278728
+                ]
+            ],
+            "description": "Black Sea - Kazan'",
+            "infos": [
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Openlayers",
+                    "title": "Popup Example",
+                    "url": "http://openlayers.org/en/latest/examples/popup.html",
+                    "year": 2015
+                },
+                {
+                    "author": "Openlayers",
+                    "title": "Vector Context",
+                    "url": "http://openlayers.org/en/latest/apidoc/ol.render.VectorContext.html",
+                    "year": 2014
+                },
+                {
+                    "author": "Openlayers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    55.34,
+                    52.06
+                ],
+                [
+                    45.034689,
+                    39.170539
+                ]
+            ],
+            "description": "Pashkovskiy - Zainsk",
+            "infos": [
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Openlayers",
+                    "title": "Popup Example",
+                    "url": "http://openlayers.org/en/latest/examples/popup.html",
+                    "year": 2015
+                },
+                {
+                    "author": "Openlayers",
+                    "title": "Vector Context",
+                    "url": "http://openlayers.org/en/latest/apidoc/ol.render.VectorContext.html",
+                    "year": 2014
+                },
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                },
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    63.048597,
+                    17.768856
+                ],
+                [
+                    67.132408,
+                    20.814636
+                ]
+            ],
+            "description": "Kramfosrv - Gällivar",
+            "infos": [
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    12.353194,
+                    -1.512417
+                ],
+                [
+                    6.165611,
+                    1.254511
+                ]
+            ],
+            "description": "Ghana - Burkina Faso",
+            "infos": [
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    18.307542,
+                    123.979439
+                ],
+                [
+                    8.415619,
+                    124.611219
+                ]
+            ],
+            "description": "Bugo - Yagan",
+            "infos": [
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    55.012622,
+                    82.650656
+                ],
+                [
+                    52.268028,
+                    104.388975
+                ]
+            ],
+            "description": "Shelekhov - Novosibirisk",
+            "infos": [
+                {
+                    "author": "Jerome Labonte",
+                    "title": "Test PaTx",
+                    "url": "http://www.google.com",
+                    "year": 2017
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    42.364347,
+                    -71.005181
+                ],
+                [
+                    51.4775,
+                    -0.461389
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    11.597669,
+                    122.751669
+                ],
+                [
+                    14.508647,
+                    121.019581
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    40.080111,
+                    116.584556
+                ],
+                [
+                    37.469075,
+                    126.450517
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    13.337961,
+                    -16.652206
+                ],
+                [
+                    14.739708,
+                    -17.490225
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    60.0506,
+                    -77.2869
+                ],
+                [
+                    58.4719,
+                    -78.0769
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    11.5472,
+                    43.1594
+                ],
+                [
+                    21.679564,
+                    39.156536
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    25.077731,
+                    121.232822
+                ],
+                [
+                    34.4347222,
+                    135.244167
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    28.429394,
+                    -81.308994
+                ],
+                [
+                    26.511406,
+                    -77.083472
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    33.367467,
+                    -7.589967
+                ],
+                [
+                    43.629075,
+                    1.363819
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    55.408611,
+                    37.906111
+                ],
+                [
+                    39.700547,
+                    66.983829
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    43.5412,
+                    125.1201
+                ],
+                [
+                    31.742042,
+                    118.862025
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    29.719217,
+                    106.641678
+                ],
+                [
+                    21.2144,
+                    110.358
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    30.578528,
+                    103.947086
+                ],
+                [
+                    41.3824,
+                    123.2901
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    19.934856,
+                    110.458961
+                ],
+                [
+                    29.826683,
+                    121.461906
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    29.515,
+                    108.83
+                ],
+                [
+                    30.578528,
+                    103.947086
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    36.117,
+                    103.617
+                ],
+                [
+                    29.719217,
+                    106.641678
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    22.608267,
+                    108.172442
+                ],
+                [
+                    10.818797,
+                    106.651856
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    36.857214,
+                    117.215992
+                ],
+                [
+                    43.5412,
+                    125.1201
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    30.8361,
+                    108.406
+                ],
+                [
+                    24.992364,
+                    102.743536
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    30.671,
+                    111.441
+                ],
+                [
+                    30.578528,
+                    103.947086
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    55.591531,
+                    37.261486
+                ],
+                [
+                    59.800292,
+                    30.262503
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    -34.822222,
+                    -58.535833
+                ],
+                [
+                    40.639751,
+                    -73.778925
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    36.080056,
+                    -115.15225
+                ],
+                [
+                    19.337072,
+                    -99.566008
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    19.436303,
+                    -99.072097
+                ],
+                [
+                    19.144778,
+                    -104.558631
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    17.997,
+                    -92.817361
+                ],
+                [
+                    19.436303,
+                    -99.072097
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    44.535444,
+                    11.288667
+                ],
+                [
+                    52.559686,
+                    13.287711
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Mozilla",
+                    "title": "Array forEach",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Array/forEach",
+                    "year": 2011
+                },
+                {
+                    "author": "W3 shools",
+                    "title": "array.length",
+                    "url": "https://www.w3schools.com/jsref/jsref_length_array.asp",
+                    "year": 2006
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        },
+        {
+            "coordinates": [
+                [
+                    51.4775,
+                    -0.461389
+                ],
+                [
+                    41.297078,
+                    2.078464
+                ]
+            ],
+            "infos": [
+                {
+                    "author": "Open layers",
+                    "title": "Interactive style",
+                    "url": "https://openlayersbook.github.io/ch06-styling-vector-layers/example-08.html",
+                    "year": 2016
+                },
+                {
+                    "author": "Mozilla",
+                    "title": "Terneray operator",
+                    "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Op%C3%A9rateurs/L_op%C3%A9rateur_conditionnel",
+                    "year": 2015
+                }
+            ]
+        }
+    ]
+}
