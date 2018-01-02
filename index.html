@@ -80,13 +80,13 @@
         /**
          * Create an overlay to anchor the popup to the map.
          */
-        const overlay = new ol.Overlay(/** @type {olx.OverlayOptions} */ ({
+        const overlay = new ol.Overlay({
             element: container,
             autoPan: true,
             autoPanAnimation: {
                 duration: 250
             }
-        }));
+        });
 
         /**
          * Add a click handler to hide the popup.
@@ -172,7 +172,7 @@
             }
         });
 
-        const travelStyleFunction = (feature, resolution) => {
+        const travelStyleFunction = (feature) => {
             const color = feature.get("selected") ? "rgb(0, 0, 255)" : "rgba(255, 0, 0, 0.5)";
             return (new ol.style.Style({
                 stroke: new ol.style.Stroke({
@@ -182,7 +182,7 @@
             }));
         };
 
-        var vectorStyleFunction = function(width) {
+        const vectorStyleFunction = (width) => {
             return (new ol.style.Style({
                     stroke: new ol.style.Stroke({
                         color: "rgba(255, 0, 0, 0.5)",
@@ -192,7 +192,6 @@
         };
 
         let travelsSource;
-        var filterSrouce;
 
         const addLater = (feature, timeout) => {
             window.setTimeout(() => {
@@ -227,39 +226,10 @@
             map.render();
         };
 
-        var filterAnimateFlights = function (event) {
-            var vectorContext = event.vectorContext;
-            var frameState = event.frameState;
-            //vectorContext.setStyle(style);
-
-            var features = filterSource.getFeatures();
-            for (var i = 0; i < features.length; i++) {
-                var feature = features[i];
-                if (!feature.get('finished')) {
-                    // only draw the lines for which the animation has not finished yet
-                    var coords = feature.getGeometry().getCoordinates();
-                    var elapsedTime = frameState.time - feature.get('start');
-                    var elapsedPoints = elapsedTime * pointsPerMs;
-
-                    if (elapsedPoints >= coords.length) {
-                        feature.set('finished', true);
-                    }
-
-                    var maxIndex = Math.min(elapsedPoints, coords.length);
-                    var currentLine = new ol.geom.LineString(coords.slice(0, maxIndex));
-                    vectorContext.setStyle(vectorStyleFunction(feature.get("occurences")));
-                    // directly draw the line with the vector context
-                    vectorContext.drawGeometry(currentLine);
-                }
-            }
-            // tell OpenLayers to continue the animation
-            map.render();
-        };
-
         travelsSource = new ol.source.Vector({
             wrapX: false,
-            loader: function () {
-                var url = 'travels.json';
+            loader: () => {
+                const url = 'travels.json';
                 fetch(url).then((response) => response.json()).then((json) => {
                     const travelsData = json.travels;
                     let i = 0;
@@ -298,7 +268,7 @@
 
         const travelsLayer = new ol.layer.Vector({
             source: travelsSource,
-            style: function (feature) {
+            style: (feature) => {
             // if the animation is still active for a feature, do not
             // render the feature with the layer style
             if (feature.get('finished')) {
@@ -310,8 +280,8 @@
         });
         map.addLayer(travelsLayer);
 
-        var collection = new ol.Collection();
-        var selectedLayer = new ol.layer.Vector({
+        const collection = new ol.Collection();
+        const selectedLayer = new ol.layer.Vector({
             map: map,
             source: new ol.source.Vector({
                 features: collection,
@@ -333,7 +303,7 @@
             // then for each feature at the mouse position ...
             const features = map.getFeaturesAtPixel(pixel);
             if(features) {
-                var i = 0;
+                let i = 0;
                 while(features[i].get("selected")){
                     i++;
                 }
@@ -357,7 +327,7 @@
                     text: new ol.style.Text(baseTextStyle),
                     zIndex: 1
                 });
-                var selectedFeature = new ol.Feature({
+                const selectedFeature = new ol.Feature({
                     geometry: feature.getGeometry(),
                     occurences: feature.get("occurences"),
                     selected: true,
@@ -374,7 +344,7 @@
             }
         });
 
-        document.onkeyup = function(e) {
+        document.onkeyup = (e) => {
             const layers = map.getLayers();
             let i = 0;
             while(layers.item(i).type !== "VECTOR" || layers.item(i).get("selected")) {
@@ -384,8 +354,8 @@
             vectorLayer.getSource().clear();
             travelsSource = new ol.source.Vector({
                 wrapX: false,
-                loader: function () {
-                    var url = 'travels.json';
+                loader: () => {
+                    const url = 'travels.json';
                     fetch(url).then((response) => response.json()).then((json) => {
                         const travelsData = json.travels;
                         let i = 0;
@@ -394,18 +364,18 @@
                             const to = travel.coordinates[1];
                             const infos = travel.infos.filter((info) => info.author === "Jerome Labonte");
                             if(infos.length !== 0){
-                                var text = travel.description + "(" + infos.length + ")";
+                                const text = travel.description + "(" + infos.length + ")";
                                 // create an arc circle between the two locations
-                                var arcGenerator = new arc.GreatCircle(
+                                const arcGenerator = new arc.GreatCircle(
                                     {x: from[1], y: from[0]},
                                     {x: to[1], y: to[0]});
 
-                                var arcLine = arcGenerator.Arc(100, {offset: 10});
+                                const arcLine = arcGenerator.Arc(100, {offset: 10});
                                 if (arcLine.geometries.length === 1) {
-                                    var line = new ol.geom.LineString(arcLine.geometries[0].coords);
+                                    const line = new ol.geom.LineString(arcLine.geometries[0].coords);
                                     line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
 
-                                    var feature = new ol.Feature({
+                                    const feature = new ol.Feature({
                                         geometry: line,
                                         text: text,
                                         finished: false,
@@ -418,7 +388,7 @@
                                     i++
                                 }
                             }
-                        })
+                        });
                         map.on('postcompose', animateFlights);
                     });
                 },
