@@ -59,7 +59,16 @@
         <a href="#" id="popup-closer" class="ol-popup-closer"></a>
         <div id="popup-content"></div>
     </div>
+    <div>
+        Filter section
+    </div>
     <script>
+
+        // vitesse de traçage de la ligne
+        const pointsPerMs = 0.1;
+        // Temps en ms entre le tracage des vecteur
+        const delayBetweenVectors = 100;
+
         /**
          * Elements that make up the popup.
          */
@@ -140,119 +149,80 @@
         /**
          * Add a click handler to the map to render the popup.
          */
-        map.on('singleclick', function(event) {
-            var pixel = event.pixel;
+        map.on('singleclick', (event) => {
+            const pixel = event.pixel;
             // then for each feature at the mouse position ...
-            var infos = "<ul>";
-            var title = "";
-            var features = map.getFeaturesAtPixel(pixel);
+            let infos = "<ul>";
+            const features = map.getFeaturesAtPixel(pixel);
             if(features) {
-                var i = 0;
-                while(features[i].get("overlay")){
+                let i = 0;
+                while(features[i].get("selected")){
                     i++;
                 }
-                var feature = features[i];
-                var featureInfos = feature.get("infos");
-                featureInfos.forEach(function(info){
-                    infos += "<li>" + info.author + ", " +
-                        '<a href='+ info.url + " target='_blank'>" + info.title + "</a>, " +info.year +  "</li>";
+                const feature = features[i];
+                const featureInfos = feature.get("infos");
+                featureInfos.forEach((info) => {
+                    infos += `<li>${info.author}, <a href=${info.url} target='_blank'>${info.title}</a>, ${info.year}</li>`;
                 });
-                header = feature.get("text");
-
+                const header = feature.get("text");
                 infos += "</ul>";
-                var coordinate = event.coordinate;
-                content.innerHTML = "<h3>" + header + "</h3>" + infos;
+                const coordinate = event.coordinate;
+                content.innerHTML = `<h3>${header}</h3>${infos}`;
                 overlay.setPosition(coordinate);
             }
         });
 
-        map.on('singleclick', function(event) {
-
-        });
-
         const travelStyleFunction = (feature, resolution) => {
-            if (feature.get("occurences")) {
-                return (new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: "rgba(255, 0, 0, 0.5)",
-                        width: 1 + feature.get("occurences") * 0.5
-                    })
-                }));
-            } else {
-                return (new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: "rgba(255, 0, 0, 0.5)",
-                        width: 1.5
-                    })
-                }));
-            }
+            const color = feature.get("selected") ? "rgb(0, 0, 255)" : "rgba(255, 0, 0, 0.5)";
+            return (new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: color,
+                    width: 1 + feature.get("occurences") * 0.5
+                })
+            }));
         };
 
         var vectorStyleFunction = function(width) {
-            if (width) {
-                return (new ol.style.Style({
+            return (new ol.style.Style({
                     stroke: new ol.style.Stroke({
                         color: "rgba(255, 0, 0, 0.5)",
                         width: 1 + width * 0.5
                     })
                 }));
-            } else {
-                return (new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: "rgba(255, 0, 0, 0.5)",
-                        width: 1.5
-                    })
-                }));
-            }
         };
 
-        var travelsSource;
+        let travelsSource;
         var filterSrouce;
 
-        var addLater = function (feature, timeout) {
-            window.setTimeout(function () {
+        const addLater = (feature, timeout) => {
+            window.setTimeout(() => {
                 feature.set('start', new Date().getTime());
                 travelsSource.addFeature(feature);
             }, timeout);
         };
 
-        var filterAddLater = function (feature, timeout) {
-            window.setTimeout(function () {
-                feature.set('start', new Date().getTime());
-                filterSource.addFeature(feature);
-            }, timeout);
-        };
-
-        // vitesse de traçage de la ligne
-        var pointsPerMs = 0.1;
-        // Temps en ms entre le tracage des vecteur
-        var delayBetweenVectors = 100;
-
-        var animateFlights = function (event) {
-            var vectorContext = event.vectorContext;
-            var frameState = event.frameState;
-            //vectorContext.setStyle(style);
-
-            var features = travelsSource.getFeatures();
-            for (var i = 0; i < features.length; i++) {
-                var feature = features[i];
+        const animateFlights = (event) => {
+            const vectorContext = event.vectorContext;
+            const frameState = event.frameState;
+            const features = travelsSource.getFeatures();
+            features.forEach( (feature) => {
                 if (!feature.get('finished')) {
                     // only draw the lines for which the animation has not finished yet
-                    var coords = feature.getGeometry().getCoordinates();
-                    var elapsedTime = frameState.time - feature.get('start');
-                    var elapsedPoints = elapsedTime * pointsPerMs;
+                    const coords = feature.getGeometry().getCoordinates();
+                    const elapsedTime = frameState.time - feature.get('start');
+                    const elapsedPoints = elapsedTime * pointsPerMs;
 
                     if (elapsedPoints >= coords.length) {
                         feature.set('finished', true);
                     }
 
-                    var maxIndex = Math.min(elapsedPoints, coords.length);
-                    var currentLine = new ol.geom.LineString(coords.slice(0, maxIndex));
+                    const maxIndex = Math.min(elapsedPoints, coords.length);
+                    const currentLine = new ol.geom.LineString(coords.slice(0, maxIndex));
                     vectorContext.setStyle(vectorStyleFunction(feature.get("occurences")));
                     // directly draw the line with the vector context
                     vectorContext.drawGeometry(currentLine);
                 }
-            }
+            } );
             // tell OpenLayers to continue the animation
             map.render();
         };
@@ -290,44 +260,43 @@
             wrapX: false,
             loader: function () {
                 var url = 'travels.json';
-                fetch(url).then(function (response) {
-                    return response.json();
-                }).then(function (json) {
-                    var travelsData = json.travels;
-                    for (var i = 0; i < travelsData.length; i++) {
-                        var travel = travelsData[i];
-                        var from = travel.coordinates[0];
-                        var to = travel.coordinates[1];
-                        var infos = travel.infos;
-                        var text = travel.description + "(" + infos.length + ")";
+                fetch(url).then((response) => response.json()).then((json) => {
+                    const travelsData = json.travels;
+                    let i = 0;
+                    travelsData.forEach((travel) => {
+                        const from = travel.coordinates[0];
+                        const to = travel.coordinates[1];
+                        const infos = travel.infos;
+                        const text = `${travel.description}(${infos.length})`;
                         // create an arc circle between the two locations
-                        var arcGenerator = new arc.GreatCircle(
+                        const arcGenerator = new arc.GreatCircle(
                             {x: from[1], y: from[0]},
                             {x: to[1], y: to[0]});
 
-                        var arcLine = arcGenerator.Arc(100, {offset: 10});
+                        const arcLine = arcGenerator.Arc(100, {offset: 10});
                         if (arcLine.geometries.length === 1) {
-                            var line = new ol.geom.LineString(arcLine.geometries[0].coords);
+                            const line = new ol.geom.LineString(arcLine.geometries[0].coords);
                             line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
 
-                            var feature = new ol.Feature({
+                            const feature = new ol.Feature({
                                 geometry: line,
                                 text: text,
                                 finished: false,
-                                occurences: infos ? infos.length : 1,
+                                occurences: infos.length,
                                 infos: infos,
                             });
                             // add the feature with a delay so that the animation
                             // for all features does not start at the same time
                             addLater(feature, i * delayBetweenVectors);
+                            i++;
                         }
-                    }
+                    });
                     map.on('postcompose', animateFlights);
                 });
             },
         });
 
-        var travelsLayer = new ol.layer.Vector({
+        const travelsLayer = new ol.layer.Vector({
             source: travelsSource,
             style: function (feature) {
             // if the animation is still active for a feature, do not
@@ -341,44 +310,36 @@
         });
         map.addLayer(travelsLayer);
 
-        var overlayStyleFunction = function(feature, resolution) {
-            return (new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: "rgb(0, 0, 255)",
-                    width: 2 + feature.get("occurences") * 0.5
-                })
-            }));
-        };
         var collection = new ol.Collection();
-        var featureOverlay = new ol.layer.Vector({
+        var selectedLayer = new ol.layer.Vector({
             map: map,
             source: new ol.source.Vector({
                 features: collection,
                 useSpatialIndex: false // optional, might improve performance
             }),
-            style: overlayStyleFunction,
+            selected: true,
+            style: travelStyleFunction,
             updateWhileAnimating: true, // optional, for instant visual feedback
             updateWhileInteracting: true // optional, for instant visual feedback
         });
 
         // when the mouse moves over the map, we get an event that we can use
         // to create a new feature overlay from
-        map.on('pointermove', function(browserEvent) {
+        map.on('pointermove', (event) => {
             // first clear any existing features in the overlay
-            featureOverlay.getSource().clear();
-            var coordinate = browserEvent.coordinate;
-            var pixel = browserEvent.pixel;
+            selectedLayer.getSource().clear();
+            const coordinate = event.coordinate;
+            const pixel = event.pixel;
             // then for each feature at the mouse position ...
-            var features;
-            var features = map.getFeaturesAtPixel(pixel);
+            const features = map.getFeaturesAtPixel(pixel);
             if(features) {
                 var i = 0;
-                while(features[i].get("overlay")){
+                while(features[i].get("selected")){
                     i++;
                 }
-                var feature = features[i];
+                const feature = features[i];
 
-                var baseTextStyle = {
+                const baseTextStyle = {
                     font: '12px Calibri,sans-serif',
                     textAlign: 'center',
                     offsetY: -15,
@@ -392,49 +353,46 @@
                 };
                 baseTextStyle.text = feature.get("text");
 
-                var textOverlayStyle = new ol.style.Style({
+                const textOverlayStyle = new ol.style.Style({
                     text: new ol.style.Text(baseTextStyle),
                     zIndex: 1
                 });
-                var overlayFeature = new ol.Feature({
+                var selectedFeature = new ol.Feature({
                     geometry: feature.getGeometry(),
                     occurences: feature.get("occurences"),
-                    overlay: true,
+                    selected: true,
                 });
-                featureOverlay.getSource().addFeature(overlayFeature);
-                var geometry = feature.getGeometry();
-                var point = geometry.getClosestPoint(coordinate);
-                var textFeature = new ol.Feature({
+                selectedLayer.getSource().addFeature(selectedFeature);
+                const geometry = feature.getGeometry();
+                const point = geometry.getClosestPoint(coordinate);
+                const textFeature = new ol.Feature({
                     geometry: new ol.geom.Point(point),
-                    overlay: true,
+                    selected: true,
                 });
                 textFeature.setStyle(textOverlayStyle);
-                featureOverlay.getSource().addFeature(textFeature);
+                selectedLayer.getSource().addFeature(textFeature);
             }
         });
+
         document.onkeyup = function(e) {
-            var layers = map.getLayers();
-            var i = 0;
-            while(layers.item(i).type !== "VECTOR") {
+            const layers = map.getLayers();
+            let i = 0;
+            while(layers.item(i).type !== "VECTOR" || layers.item(i).get("selected")) {
                 i++;
             }
-            var vectorlayer = layers.item(i);
-            filterSource = new ol.source.Vector({
+            const vectorLayer = layers.item(i);
+            vectorLayer.getSource().clear();
+            travelsSource = new ol.source.Vector({
                 wrapX: false,
                 loader: function () {
                     var url = 'travels.json';
-                    fetch(url).then(function (response) {
-                        return response.json();
-                    }).then(function (json) {
-                        var travelsData = json.travels;
-                        for (var i = 0; i < travelsData.length; i++) {
-                            var travel = travelsData[i];
-                            var from = travel.coordinates[0];
-                            var to = travel.coordinates[1];
-                            var infos = travel.infos.filter(function(info){
-                                return info.author === "Openlayers";
-                            });
-                            console.log(infos);
+                    fetch(url).then((response) => response.json()).then((json) => {
+                        const travelsData = json.travels;
+                        let i = 0;
+                        travelsData.forEach((travel) => {
+                            const from = travel.coordinates[0];
+                            const to = travel.coordinates[1];
+                            const infos = travel.infos.filter((info) => info.author === "Jerome Labonte");
                             if(infos.length !== 0){
                                 var text = travel.description + "(" + infos.length + ")";
                                 // create an arc circle between the two locations
@@ -451,20 +409,21 @@
                                         geometry: line,
                                         text: text,
                                         finished: false,
-                                        occurences: infos ? infos.length : 1,
+                                        occurences: infos.length,
                                         infos: infos,
                                     });
                                     // add the feature with a delay so that the animation
                                     // for all features does not start at the same time
-                                    filterAddLater(feature, i * delayBetweenVectors);
+                                    addLater(feature, i * delayBetweenVectors);
+                                    i++
                                 }
                             }
-                        }
-                        map.on('postcompose', filterAnimateFlights);
+                        })
+                        map.on('postcompose', animateFlights);
                     });
                 },
             });
-            vectorlayer.setSource(filterSource);
+            travelsLayer.setSource(travelsSource);
         }
     </script>
 </body>
