@@ -59,13 +59,16 @@
         <a href="#" id="popup-closer" class="ol-popup-closer"></a>
         <div id="popup-content"></div>
     </div>
-    <div>
-        Author:<input type="text" id="author">
-        Title:<input type="text" id="title">
-        Between:<input type="number" id="yearBegin">
-        and <input type="number" id="yearEnd">
+    <div id="filters">
+        Author:<input type="text" id="author0">
+        Title:<input type="text" id="title0">
+        Between:<input type="number" id="yearBegin0">
+        and <input type="number" id="yearEnd0">
         <button id="filterButton">Filter</button>
+        <button id="clearButton">Clear</button>
+        <button id="showHideButton">Show/Hide</button>
     </div>
+    <button id="addFilter">Add filter</button>
     <script>
 
         // vitesse de traçage de la ligne
@@ -73,6 +76,7 @@
         // Temps en ms entre le tracage des vecteur
         const delayBetweenVectors = 100;
 
+        let filterCount = 1;
         /**
          * Elements that make up the popup.
          */
@@ -188,9 +192,9 @@
             const geometry = feature.getGeometry();
             const end = geometry.getLastCoordinate();
             const beforeEnd = geometry.getCoordinateAt(0.9);
-            var dx = end[0] - beforeEnd[0];
-            var dy = end[1] - beforeEnd[1];
-            var rotation = Math.atan2(dy, dx);
+            const dx = end[0] - beforeEnd[0];
+            const dy = end[1] - beforeEnd[1];
+            const rotation = Math.atan2(dy, dx);
             // arrows
             styles.push(new ol.style.Style({
                 geometry: new ol.geom.Point(end),
@@ -367,7 +371,7 @@
             }
         });
 
-        document.getElementById("filterButton").onclick = () => {
+        const filter = (filterId) => {
             const layers = map.getLayers();
             let i = 0;
             while(layers.item(i).type !== "VECTOR" || layers.item(i).get("selected")) {
@@ -385,10 +389,10 @@
                         travelsData.forEach((travel) => {
                             const from = travel.coordinates[0];
                             const to = travel.coordinates[1];
-                            const author = document.getElementById("author").value;
-                            const title = document.getElementById("title").value;
-                            const yearBegin = document.getElementById("yearBegin").value;
-                            const yearEnd = document.getElementById("yearEnd").value;
+                            const author = document.getElementById("author"+filterId).value;
+                            const title = document.getElementById("title"+filterId).value;
+                            const yearBegin = document.getElementById("yearBegin"+filterId).value;
+                            const yearEnd = document.getElementById("yearEnd"+filterId).value;
                             let infos = travel.infos.filter((info) => info.author.includes(author));
                             infos = infos.filter((info) => info.title.includes(title));
                             infos = yearBegin == "" ? infos : infos.filter((info) => info.year >= yearBegin);
@@ -425,6 +429,45 @@
                 },
             });
             travelsLayer.setSource(travelsSource);
+        };
+
+        const clearFilter = (filterId) => {
+            document.getElementById("author"+filterId).value = "";
+            document.getElementById("title"+filterId).value = "";
+            document.getElementById("yearBegin"+filterId).value = "";
+            document.getElementById("yearEnd"+filterId).value = "";
+            filter(filterId);
+        };
+
+        const removeFilter = (filterId) => {
+            const element = document.getElementById("filter" + filterId);
+            element.parentNode.removeChild(element);
+        };
+
+        const toggleVisibility = (filterId) => {
+            travelsLayer.setVisible(!travelsLayer.getVisible());
+        };
+
+        document.getElementById("filterButton").onclick = () => filter(0);
+
+        document.getElementById("showHideButton").onclick = () => toggleVisibility(0);
+
+        document.getElementById("clearButton").onclick = () => clearFilter(0);
+
+        document.getElementById("addFilter").onclick = () => {
+            const para = document.createElement("div");
+            para.id = "filter" + filterCount;
+            para.innerHTML = `Author:<input type="text" id="author${filterCount}">
+            Title:<input type="text" id="title${filterCount}">
+            Between:<input type="number" id="yearBegin${filterCount}">
+            and <input type="number" id="yearEnd${filterCount}">
+            <button onclick="filter(${filterCount})">Filter</button>
+            <button onclick="clearFilter(${filterCount})">Clear</button>
+            <button onclick="toggleVisibility(${filterCount})">Show/Hide</button>
+            <button onclick="removeFilter(${filterCount})">Remove</button>`;
+            const element = document.getElementById("filters");
+            element.appendChild(para);
+            filterCount++;
         }
     </script>
 </body>
