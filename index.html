@@ -170,7 +170,7 @@
 
         });
 
-        var travelStyleFunction = function(feature, resolution) {
+        const travelStyleFunction = (feature, resolution) => {
             if (feature.get("occurences")) {
                 return (new ol.style.Style({
                     stroke: new ol.style.Stroke({
