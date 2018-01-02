@@ -178,12 +178,30 @@
 
         const travelStyleFunction = (feature) => {
             const color = feature.get("selected") ? "rgb(0, 0, 255)" : "rgba(255, 0, 0, 0.5)";
-            return (new ol.style.Style({
+            const styles = [
+                new ol.style.Style({
                 stroke: new ol.style.Stroke({
                     color: color,
                     width: 1 + feature.get("occurences") * 0.5
                 })
+            })];
+            const geometry = feature.getGeometry();
+            const end = geometry.getLastCoordinate();
+            const beforeEnd = geometry.getCoordinateAt(0.9);
+            var dx = end[0] - beforeEnd[0];
+            var dy = end[1] - beforeEnd[1];
+            var rotation = Math.atan2(dy, dx);
+            // arrows
+            styles.push(new ol.style.Style({
+                geometry: new ol.geom.Point(end),
+                image: new ol.style.Icon({
+                    src: 'https://openlayers.org/en/v4.6.4/examples/data/arrow.png',
+                    anchor: [0.75, 0.5],
+                    rotateWithView: true,
+                    rotation: -rotation
+                })
             }));
+            return styles;
         };
 
         const vectorStyleFunction = (width) => {
@@ -259,6 +277,7 @@
                                 occurences: infos.length,
                                 infos: infos,
                             });
+
                             // add the feature with a delay so that the animation
                             // for all features does not start at the same time
                             addLater(feature, i * delayBetweenVectors);
