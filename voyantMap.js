@@ -1,29 +1,31 @@
-// vitesse de traçage de la ligne
+// Speed of vectors drawing
 const pointsPerMs = 0.1;
-// Temps en ms entre le tracage des vecteur
+
+// Time between vectors drawing
 const delayBetweenVectors = 100;
 
+// Used to keep track of number of filters
 let filterCount = 1;
 
+// Colors of the different filters
 const colors = [
-    "rgba(255, 0, 0, 0.5)",
-    "rgba(0, 255, 0, 0.5)",
-    "rgba(255, 255, 0, 0.5)",
-    "rgba(255, 0, 255, 0.5)",
-    "rgba(0, 255, 255, 0.5)"
+    "rgb(230, 25, 75)",
+    "rgb(60, 180, 75)",
+    "rgb(145, 30, 180)",
+    "rgb(128, 0, 0)",
+    "rgb(0, 0, 128)",
+    "rgb(0,92,49)",
+    "rgb(143,124,0)",
+    "rgb(157,204,0)",
 ];
 
-/**
- * Elements that make up the popup.
- */
+// Elements that make up the popup
 const container = document.getElementById('popup');
 const content = document.getElementById('popup-content');
 const closer = document.getElementById('popup-closer');
 
 
-/**
- * Create an overlay to anchor the popup to the map.
- */
+// Create an overlay to anchor the popup to the map.
 const overlay = new ol.Overlay({
     element: container,
     autoPan: true,
@@ -32,10 +34,7 @@ const overlay = new ol.Overlay({
     }
 });
 
-/**
- * Add a click handler to hide the popup.
- * @return {boolean} Don't follow the href.
- */
+// Add a click handler to hide the popup
 closer.onclick = () => {
     overlay.setPosition(undefined);
     closer.blur();
@@ -44,18 +43,6 @@ closer.onclick = () => {
 
 const map = new ol.Map({
     layers: [
-        /*
-        // Belle carte réaliste, floue lorsque vue de trop près
-        new ol.layer.Tile({
-            source: new ol.source.TileWMS({
-                url: 'https://ahocevar.com/geoserver/wms',
-                params: {
-                    'LAYERS': 'ne:NE1_HR_LC_SR_W_DR',
-                    'TILED': true
-                }
-            }),
-        }),*/
-        // Approche plus artistique, intéressante à tous les niveau de zoom
         new ol.layer.Tile({
             preload: Infinity,
             source: new ol.source.Stamen({
@@ -72,7 +59,7 @@ const map = new ol.Map({
             })
         }),
         /*
-        // Carte National Geographic, inclu les labels
+        // National Geographic Map, more realistic, but includes labels and loading is slower
         new ol.layer.Tile({
             preload: Infinity,
             source: new ol.source.TileArcGISRest({
@@ -90,15 +77,12 @@ const map = new ol.Map({
     })
 });
 
-/**
- * Add a click handler to the map to render the popup.
- */
+// Add a click handler to the map to render the popup.
 map.on('singleclick', (event) => {
     const pixel = event.pixel;
-    // then for each feature at the mouse position ...
-    let infos = "<ul>";
     const features = map.getFeaturesAtPixel(pixel);
     if(features) {
+        let infos = "<ul>";
         let i = 0;
         while(features[i].get("selected")){
             i++;
@@ -116,7 +100,9 @@ map.on('singleclick', (event) => {
     }
 });
 
+// Style for vector after animation
 const travelStyleFunction = (feature) => {
+    // default color is red, selected feature is blue and first 8 layers have pre-defined colors
     let color = "rgba(255, 0, 0, 0.5)";
     if (feature.get("selected")) {
         color = "rgb(0, 0, 255)";
@@ -130,13 +116,14 @@ const travelStyleFunction = (feature) => {
                 width: 1 + feature.get("occurences") * 0.5
             })
         })];
+
+    // Create arrow to show vector direction
     const geometry = feature.getGeometry();
     const end = geometry.getLastCoordinate();
     const beforeEnd = geometry.getCoordinateAt(0.9);
     const dx = end[0] - beforeEnd[0];
     const dy = end[1] - beforeEnd[1];
     const rotation = Math.atan2(dy, dx);
-    // arrows
     styles.push(new ol.style.Style({
         geometry: new ol.geom.Point(end),
         image: new ol.style.Icon({
@@ -149,6 +136,7 @@ const travelStyleFunction = (feature) => {
     return styles;
 };
 
+// Style for vector during animation
 const vectorStyleFunction = (feature) => {
     const color = feature.get("color");
     return (new ol.style.Style({
@@ -159,8 +147,7 @@ const vectorStyleFunction = (feature) => {
     }));
 };
 
-let travelsSource;
-
+// Add feature to layer with a delay
 const addLater = (feature, timeout, layerId) => {
     window.setTimeout(() => {
         feature.set('start', new Date().getTime());
@@ -175,7 +162,8 @@ const addLater = (feature, timeout, layerId) => {
     }, timeout);
 };
 
-const animateFlights = (event, layerId) => {
+// Animate travels for a layer
+const animateTravels = (event, layerId) => {
     const vectorContext = event.vectorContext;
     const frameState = event.frameState;
     const layers = map.getLayers();
@@ -207,50 +195,14 @@ const animateFlights = (event, layerId) => {
     map.render();
 };
 
-travelsSource = new ol.source.Vector({
-    wrapX: false,
-    loader: () => {
-        const url = 'travels.json';
-        fetch(url).then((response) => response.json()).then((json) => {
-            const travelsData = json.travels;
-            let i = 0;
-            travelsData.forEach((travel) => {
-                const from = travel.coordinates[0];
-                const to = travel.coordinates[1];
-                const infos = travel.infos;
-                const text = `${travel.description}(${infos.length})`;
-                // create an arc circle between the two locations
-                const arcGenerator = new arc.GreatCircle(
-                    {x: from[1], y: from[0]},
-                    {x: to[1], y: to[0]});
-
-                const arcLine = arcGenerator.Arc(100, {offset: 10});
-                if (arcLine.geometries.length === 1) {
-                    const line = new ol.geom.LineString(arcLine.geometries[0].coords);
-                    line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
-
-                    const feature = new ol.Feature({
-                        geometry: line,
-                        text: text,
-                        finished: true,
-                        occurences: infos.length,
-                        infos: infos,
-                        color: colors[0]
-                    });
-
-                    // add the feature with a delay so that the animation
-                    // for all features does not start at the same time
-                    addLater(feature, 0, 0);
-                    i++;
-                }
-            });
-        });
-    },
-});
-
+// Initial layer for first filter
 const travelsLayer = new ol.layer.Vector({
-    source: travelsSource,
+    source: new ol.source.Vector({
+        wrapX: false,
+        useSpatialIndex: false // optional, might improve performance
+    }),
     id: "layer0",
+    opacity: 0.7,
     style: (feature) => {
         // if the animation is still active for a feature, do not
         // render the feature with the layer style
@@ -263,28 +215,25 @@ const travelsLayer = new ol.layer.Vector({
 });
 map.addLayer(travelsLayer);
 
-const collection = new ol.Collection();
-
+// Layer for selected vector
 const selectedLayer = new ol.layer.Vector({
     map: map,
     source: new ol.source.Vector({
-        features: collection,
+        wrapX: false,
         useSpatialIndex: false // optional, might improve performance
     }),
+    zIndex:10,
     selected: true,
     style: travelStyleFunction,
     updateWhileAnimating: true, // optional, for instant visual feedback
     updateWhileInteracting: true // optional, for instant visual feedback
 });
 
-// when the mouse moves over the map, we get an event that we can use
-// to create a new feature overlay from
+// Add handler to update selected vector when mouse is moved
 map.on('pointermove', (event) => {
-    // first clear any existing features in the overlay
     selectedLayer.getSource().clear();
     const coordinate = event.coordinate;
     const pixel = event.pixel;
-    // then for each feature at the mouse position ...
     const features = map.getFeaturesAtPixel(pixel);
     if(features) {
         let i = 0;
@@ -305,12 +254,14 @@ map.on('pointermove', (event) => {
                 width: 4
             })
         };
+
         baseTextStyle.text = feature.get("text");
 
         const textOverlayStyle = new ol.style.Style({
             text: new ol.style.Text(baseTextStyle),
             zIndex: 1
         });
+
         const selectedFeature = new ol.Feature({
             geometry: feature.getGeometry(),
             occurences: feature.get("occurences"),
@@ -328,6 +279,7 @@ map.on('pointermove', (event) => {
     }
 });
 
+// Called when the filter button is pressed. Shows all vectors instantly.
 const filter = (filterId) => {
     const layers = map.getLayers();
     let i = 0;
@@ -337,66 +289,56 @@ const filter = (filterId) => {
     const vectorLayer = layers.item(i);
     vectorLayer.setVisible(true);
     document.getElementById("showHideButton"+filterId).innerText = "Hide";
-    const collection = new ol.Collection();
-    vectorLayer.setSource(new ol.source.Vector({
-        features: collection,
-        useSpatialIndex: false // optional, might improve performance
-    }));
-    const newSource = new ol.source.Vector({
-        wrapX: false,
-        loader: () => {
-            const url = 'travels.json';
-            fetch(url).then((response) => response.json()).then((json) => {
-                const travelsData = json.travels;
-                let i = 0;
-                travelsData.forEach((travel) => {
-                    const from = travel.coordinates[0];
-                    const to = travel.coordinates[1];
-                    const author = document.getElementById("author"+filterId).value;
-                    const title = document.getElementById("title"+filterId).value;
-                    const yearBegin = document.getElementById("yearBegin"+filterId).value;
-                    const yearEnd = document.getElementById("yearEnd"+filterId).value;
-                    let infos = travel.infos.filter((info) => info.author.includes(author));
-                    infos = infos.filter((info) => info.title.includes(title));
-                    infos = yearBegin == "" ? infos : infos.filter((info) => info.year >= yearBegin);
-                    infos = yearEnd == "" ? infos : infos.filter((info) => info.year <= yearEnd);
+    vectorLayer.getSource().clear();
+    const url = 'travels.json';
+    fetch(url).then((response) => response.json()).then((json) => {
+        const travelsData = json.travels;
+        let i = 0;
+        travelsData.forEach((travel) => {
+            const from = travel.coordinates[0];
+            const to = travel.coordinates[1];
+            const author = document.getElementById("author"+filterId).value;
+            const title = document.getElementById("title"+filterId).value;
+            const yearBegin = document.getElementById("yearBegin"+filterId).value;
+            const yearEnd = document.getElementById("yearEnd"+filterId).value;
+            let infos = travel.infos.filter((info) => info.author.includes(author));
+            infos = infos.filter((info) => info.title.includes(title));
+            infos = yearBegin == "" ? infos : infos.filter((info) => info.year >= yearBegin);
+            infos = yearEnd == "" ? infos : infos.filter((info) => info.year <= yearEnd);
 
-                    if(infos.length !== 0){
-                        const text = travel.description + "(" + infos.length + ")";
-                        // create an arc circle between the two locations
-                        const arcGenerator = new arc.GreatCircle(
-                            {x: from[1], y: from[0]},
-                            {x: to[1], y: to[0]});
+            if(infos.length !== 0){
+                const text = travel.description + "(" + infos.length + ")";
+                // create an arc circle between the two locations
+                const arcGenerator = new arc.GreatCircle(
+                    {x: from[1], y: from[0]},
+                    {x: to[1], y: to[0]});
 
-                        const arcLine = arcGenerator.Arc(100, {offset: 10});
-                        if (arcLine.geometries.length === 1) {
-                            const line = new ol.geom.LineString(arcLine.geometries[0].coords);
-                            line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
-                            const color = colors[filterId];
-                            const feature = new ol.Feature({
-                                geometry: line,
-                                text: text,
-                                finished: true,
-                                occurences: infos.length,
-                                infos: infos,
-                                color: color,
-                            });
-                            // add the feature with a delay so that the animation
-                            // for all features does not start at the same time
-                            addLater(feature, 0, filterId);
-                            i++
-                        }
-                    }
-                });
-                //map.on('postcompose', (event) => animateFlights(event, filterId));
-            });
-        },
+                const arcLine = arcGenerator.Arc(100, {offset: 10});
+                if (arcLine.geometries.length === 1) {
+                    const line = new ol.geom.LineString(arcLine.geometries[0].coords);
+                    line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
+                    const color = colors[filterId];
+                    const feature = new ol.Feature({
+                        geometry: line,
+                        text: text,
+                        finished: true,
+                        occurences: infos.length,
+                        infos: infos,
+                        color: color,
+                    });
+                    // add the feature with a delay so that the animation
+                    // for all features does not start at the same time
+                    addLater(feature, 0, filterId);
+                    i++
+                }
+            }
+        });
     });
-    vectorLayer.setSource(newSource);
+    document.getElementById("showHideButton"+filterId).disabled = false;
 };
 
+// Called when the animate button is pressed.
 const showAnimation = (filterId) => {
-    console.log("animating layer " + filterId);
     const layers = map.getLayers();
     let i = 0;
     while(layers.item(i).get("id") !== "layer" + filterId) {
@@ -405,72 +347,72 @@ const showAnimation = (filterId) => {
     const vectorLayer = layers.item(i);
     vectorLayer.setVisible(true);
     document.getElementById("showHideButton"+filterId).innerText = "Hide";
-    const collection = new ol.Collection();
-    vectorLayer.setSource(new ol.source.Vector({
-        features: collection,
-        useSpatialIndex: false // optional, might improve performance
-    }));
-    const newSource = new ol.source.Vector({
-        wrapX: false,
-        loader: () => {
-            const url = 'travels.json';
-            fetch(url).then((response) => response.json()).then((json) => {
-                const travelsData = json.travels;
-                let i = 0;
-                travelsData.forEach((travel) => {
-                    const from = travel.coordinates[0];
-                    const to = travel.coordinates[1];
-                    const author = document.getElementById("author"+filterId).value;
-                    const title = document.getElementById("title"+filterId).value;
-                    const yearBegin = document.getElementById("yearBegin"+filterId).value;
-                    const yearEnd = document.getElementById("yearEnd"+filterId).value;
-                    let infos = travel.infos.filter((info) => info.author.includes(author));
-                    infos = infos.filter((info) => info.title.includes(title));
-                    infos = yearBegin == "" ? infos : infos.filter((info) => info.year >= yearBegin);
-                    infos = yearEnd == "" ? infos : infos.filter((info) => info.year <= yearEnd);
+    vectorLayer.getSource().clear();
+    const url = 'travels.json';
+    fetch(url).then((response) => response.json()).then((json) => {
+        const travelsData = json.travels;
+        let i = 0;
+        travelsData.forEach((travel) => {
+            const from = travel.coordinates[0];
+            const to = travel.coordinates[1];
+            const author = document.getElementById("author"+filterId).value;
+            const title = document.getElementById("title"+filterId).value;
+            const yearBegin = document.getElementById("yearBegin"+filterId).value;
+            const yearEnd = document.getElementById("yearEnd"+filterId).value;
+            let infos = travel.infos.filter((info) => info.author.includes(author));
+            infos = infos.filter((info) => info.title.includes(title));
+            infos = yearBegin == "" ? infos : infos.filter((info) => info.year >= yearBegin);
+            infos = yearEnd == "" ? infos : infos.filter((info) => info.year <= yearEnd);
 
-                    if(infos.length !== 0){
-                        const text = travel.description + "(" + infos.length + ")";
-                        // create an arc circle between the two locations
-                        const arcGenerator = new arc.GreatCircle(
-                            {x: from[1], y: from[0]},
-                            {x: to[1], y: to[0]});
+            if(infos.length !== 0){
+                const text = travel.description + "(" + infos.length + ")";
+                // create an arc circle between the two locations
+                const arcGenerator = new arc.GreatCircle(
+                    {x: from[1], y: from[0]},
+                    {x: to[1], y: to[0]});
 
-                        const arcLine = arcGenerator.Arc(100, {offset: 10});
-                        if (arcLine.geometries.length === 1) {
-                            const line = new ol.geom.LineString(arcLine.geometries[0].coords);
-                            line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
-                            const color = colors[filterId];
-                            const feature = new ol.Feature({
-                                geometry: line,
-                                text: text,
-                                finished: false,
-                                occurences: infos.length,
-                                infos: infos,
-                                color: color,
-                            });
-                            // add the feature with a delay so that the animation
-                            // for all features does not start at the same time
-                            addLater(feature, i * delayBetweenVectors, filterId);
-                            i++
-                        }
-                    }
-                });
-                map.on('postcompose', (event) => animateFlights(event, filterId));
-            });
-        },
+                const arcLine = arcGenerator.Arc(100, {offset: 10});
+                if (arcLine.geometries.length === 1) {
+                    const line = new ol.geom.LineString(arcLine.geometries[0].coords);
+                    line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
+                    const color = colors[filterId];
+                    const feature = new ol.Feature({
+                        geometry: line,
+                        text: text,
+                        finished: false,
+                        occurences: infos.length,
+                        infos: infos,
+                        color: color,
+                    });
+                    // add the feature with a delay so that the animation
+                    // for all features does not start at the same time
+                    addLater(feature, i * delayBetweenVectors, filterId);
+                    i++
+                }
+            }
+        });
+        map.on('postcompose', (event) => animateTravels(event, filterId));
     });
-    vectorLayer.setSource(newSource);
+    document.getElementById("showHideButton"+filterId).disabled = false;
 };
 
+// Clear filter fields and layer
 const clearFilter = (filterId) => {
     document.getElementById("author"+filterId).value = "";
     document.getElementById("title"+filterId).value = "";
     document.getElementById("yearBegin"+filterId).value = "";
     document.getElementById("yearEnd"+filterId).value = "";
-    filter(filterId);
+    const layers = map.getLayers();
+    let i = 0;
+    while(layers.item(i).get("id") !== "layer" + filterId) {
+        i++;
+    }
+    const clearedLayer = layers.item(i);
+    document.getElementById("showHideButton"+filterId).disabled = true;
+    clearedLayer.getSource().clear();
 };
 
+// Called when the visibility button is pressed. Shows or hides layer
 const toggleVisibility = (filterId) => {
     const layers = map.getLayers();
     let i = 0;
@@ -487,24 +429,25 @@ const toggleVisibility = (filterId) => {
     }
 };
 
-document.getElementById("filterButton").onclick = () => filter(0);
+// Attach onclicks event to first layer buttons
+document.getElementById("filterButton0").onclick = () => filter(0);
 
 document.getElementById("showHideButton0").onclick = () => toggleVisibility(0);
 
-document.getElementById("clearButton").onclick = () => clearFilter(0);
+document.getElementById("clearButton0").onclick = () => clearFilter(0);
 
 document.getElementById("animateButton0").onclick = () => showAnimation(0);
 
+// Called when the Add Filter button is pressed. Create new fields and layer.
 document.getElementById("addFilter").onclick = () => {
-    console.log("creating layer " + filterCount);
-    const collection = new ol.Collection();
     const filterLayer = new ol.layer.Vector({
-        map: map,
         source: new ol.source.Vector({
-            features: collection,
+            wrapX: false,
             useSpatialIndex: false // optional, might improve performance
         }),
         id: "layer" + filterCount,
+        visible: false,
+        opacity: 0.7,
         style: (feature) => {
             // if the animation is still active for a feature, do not
             // render the feature with the layer style
@@ -517,17 +460,17 @@ document.getElementById("addFilter").onclick = () => {
         updateWhileAnimating: true, // optional, for instant visual feedback
         updateWhileInteracting: true // optional, for instant visual feedback
     });
-    filterLayer.setVisible(false);
     map.addLayer(filterLayer);
     const para = document.createElement("div");
     para.id = "filter" + filterCount;
+    para.style.color = colors[filterCount];
     para.innerHTML = `Author:<input type="text" id="author${filterCount}">
             Title:<input type="text" id="title${filterCount}">
             Between:<input type="number" id="yearBegin${filterCount}">
             and <input type="number" id="yearEnd${filterCount}">
             <button onclick="filter(${filterCount})">Filter</button>
             <button onclick="clearFilter(${filterCount})">Clear</button>
-            <button onclick="toggleVisibility(${filterCount})" id="showHideButton${filterCount}">Show</button>
+            <button onclick="toggleVisibility(${filterCount})" disabled id="showHideButton${filterCount}">Show</button>
             <button onclick="showAnimation(${filterCount})">Animate</button>`;
     const element = document.getElementById("filters");
     element.appendChild(para);
