@@ -232,7 +232,7 @@ travelsSource = new ol.source.Vector({
                     const feature = new ol.Feature({
                         geometry: line,
                         text: text,
-                        finished: false,
+                        finished: true,
                         occurences: infos.length,
                         infos: infos,
                         color: colors[0]
@@ -240,11 +240,10 @@ travelsSource = new ol.source.Vector({
 
                     // add the feature with a delay so that the animation
                     // for all features does not start at the same time
-                    addLater(feature, i * delayBetweenVectors, 0);
+                    addLater(feature, 0, 0);
                     i++;
                 }
             });
-            //map.on('postcompose', (event) => animateFlights(event, 0));
         });
     },
 });
@@ -255,15 +254,11 @@ const travelsLayer = new ol.layer.Vector({
     style: (feature) => {
         // if the animation is still active for a feature, do not
         // render the feature with the layer style
-
-        return travelStyleFunction(feature);
-        /*
         if (feature.get('finished')) {
             return travelStyleFunction(feature);
         } else {
             return null;
         }
-        */
     },
 });
 map.addLayer(travelsLayer);
@@ -342,7 +337,79 @@ const filter = (filterId) => {
     const vectorLayer = layers.item(i);
     vectorLayer.setVisible(true);
     document.getElementById("showHideButton"+filterId).innerText = "Hide";
-    vectorLayer.getSource().clear();
+    const collection = new ol.Collection();
+    vectorLayer.setSource(new ol.source.Vector({
+        features: collection,
+        useSpatialIndex: false // optional, might improve performance
+    }));
+    const newSource = new ol.source.Vector({
+        wrapX: false,
+        loader: () => {
+            const url = 'travels.json';
+            fetch(url).then((response) => response.json()).then((json) => {
+                const travelsData = json.travels;
+                let i = 0;
+                travelsData.forEach((travel) => {
+                    const from = travel.coordinates[0];
+                    const to = travel.coordinates[1];
+                    const author = document.getElementById("author"+filterId).value;
+                    const title = document.getElementById("title"+filterId).value;
+                    const yearBegin = document.getElementById("yearBegin"+filterId).value;
+                    const yearEnd = document.getElementById("yearEnd"+filterId).value;
+                    let infos = travel.infos.filter((info) => info.author.includes(author));
+                    infos = infos.filter((info) => info.title.includes(title));
+                    infos = yearBegin == "" ? infos : infos.filter((info) => info.year >= yearBegin);
+                    infos = yearEnd == "" ? infos : infos.filter((info) => info.year <= yearEnd);
+
+                    if(infos.length !== 0){
+                        const text = travel.description + "(" + infos.length + ")";
+                        // create an arc circle between the two locations
+                        const arcGenerator = new arc.GreatCircle(
+                            {x: from[1], y: from[0]},
+                            {x: to[1], y: to[0]});
+
+                        const arcLine = arcGenerator.Arc(100, {offset: 10});
+                        if (arcLine.geometries.length === 1) {
+                            const line = new ol.geom.LineString(arcLine.geometries[0].coords);
+                            line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
+                            const color = colors[filterId];
+                            const feature = new ol.Feature({
+                                geometry: line,
+                                text: text,
+                                finished: true,
+                                occurences: infos.length,
+                                infos: infos,
+                                color: color,
+                            });
+                            // add the feature with a delay so that the animation
+                            // for all features does not start at the same time
+                            addLater(feature, 0, filterId);
+                            i++
+                        }
+                    }
+                });
+                //map.on('postcompose', (event) => animateFlights(event, filterId));
+            });
+        },
+    });
+    vectorLayer.setSource(newSource);
+};
+
+const showAnimation = (filterId) => {
+    console.log("animating layer " + filterId);
+    const layers = map.getLayers();
+    let i = 0;
+    while(layers.item(i).get("id") !== "layer" + filterId) {
+        i++;
+    }
+    const vectorLayer = layers.item(i);
+    vectorLayer.setVisible(true);
+    document.getElementById("showHideButton"+filterId).innerText = "Hide";
+    const collection = new ol.Collection();
+    vectorLayer.setSource(new ol.source.Vector({
+        features: collection,
+        useSpatialIndex: false // optional, might improve performance
+    }));
     const newSource = new ol.source.Vector({
         wrapX: false,
         loader: () => {
@@ -389,7 +456,7 @@ const filter = (filterId) => {
                         }
                     }
                 });
-                //map.on('postcompose', (event) => animateFlights(event, filterId));
+                map.on('postcompose', (event) => animateFlights(event, filterId));
             });
         },
     });
@@ -426,6 +493,8 @@ document.getElementById("showHideButton0").onclick = () => toggleVisibility(0);
 
 document.getElementById("clearButton").onclick = () => clearFilter(0);
 
+document.getElementById("animateButton0").onclick = () => showAnimation(0);
+
 document.getElementById("addFilter").onclick = () => {
     console.log("creating layer " + filterCount);
     const collection = new ol.Collection();
@@ -439,14 +508,11 @@ document.getElementById("addFilter").onclick = () => {
         style: (feature) => {
             // if the animation is still active for a feature, do not
             // render the feature with the layer style
-            return travelStyleFunction(feature);
-            /*
             if (feature.get('finished')) {
                 return travelStyleFunction(feature);
             } else {
                 return null;
             }
-            */
         },
         updateWhileAnimating: true, // optional, for instant visual feedback
         updateWhileInteracting: true // optional, for instant visual feedback
@@ -462,7 +528,7 @@ document.getElementById("addFilter").onclick = () => {
             <button onclick="filter(${filterCount})">Filter</button>
             <button onclick="clearFilter(${filterCount})">Clear</button>
             <button onclick="toggleVisibility(${filterCount})" id="showHideButton${filterCount}">Show</button>
-            <button onclick="animate(${filterCount})">Animate< /button>`;
+            <button onclick="showAnimation(${filterCount})">Animate</button>`;
     const element = document.getElementById("filters");
     element.appendChild(para);
     filterCount++;
