@@ -12,6 +12,7 @@ const colors = [
     "rgba(255, 0, 255, 0.5)",
     "rgba(0, 255, 255, 0.5)"
 ];
+
 /**
  * Elements that make up the popup.
  */
@@ -234,6 +235,7 @@ travelsSource = new ol.source.Vector({
                         finished: false,
                         occurences: infos.length,
                         infos: infos,
+                        color: colors[0]
                     });
 
                     // add the feature with a delay so that the animation
@@ -242,7 +244,7 @@ travelsSource = new ol.source.Vector({
                     i++;
                 }
             });
-            map.on('postcompose', (event) => animateFlights(event, 0));
+            //map.on('postcompose', (event) => animateFlights(event, 0));
         });
     },
 });
@@ -253,16 +255,21 @@ const travelsLayer = new ol.layer.Vector({
     style: (feature) => {
         // if the animation is still active for a feature, do not
         // render the feature with the layer style
+
+        return travelStyleFunction(feature);
+        /*
         if (feature.get('finished')) {
             return travelStyleFunction(feature);
         } else {
             return null;
         }
+        */
     },
 });
 map.addLayer(travelsLayer);
 
 const collection = new ol.Collection();
+
 const selectedLayer = new ol.layer.Vector({
     map: map,
     source: new ol.source.Vector({
@@ -333,6 +340,8 @@ const filter = (filterId) => {
         i++;
     }
     const vectorLayer = layers.item(i);
+    vectorLayer.setVisible(true);
+    document.getElementById("showHideButton"+filterId).innerText = "Hide";
     vectorLayer.getSource().clear();
     const newSource = new ol.source.Vector({
         wrapX: false,
@@ -380,7 +389,7 @@ const filter = (filterId) => {
                         }
                     }
                 });
-                map.on('postcompose', (event) => animateFlights(event, filterId));
+                //map.on('postcompose', (event) => animateFlights(event, filterId));
             });
         },
     });
@@ -395,33 +404,25 @@ const clearFilter = (filterId) => {
     filter(filterId);
 };
 
-const removeFilter = (filterId) => {
-    console.log("removing layer " + filterId);
-    const element = document.getElementById("filter" + filterId);
-    element.parentNode.removeChild(element);
-    const layers = map.getLayers();
-    let i = 0;
-    while(layers.item(i).get("id") !== "layer" + filterId) {
-        i++;
-    }
-    const layerToRemove = layers.item(i);
-    map.removeLayer(layerToRemove);
-};
-
 const toggleVisibility = (filterId) => {
-    console.log("changing visibility layer " + filterId);
     const layers = map.getLayers();
     let i = 0;
     while(layers.item(i).get("id") !== "layer" + filterId) {
         i++;
     }
     const toggledLayer = layers.item(i);
-    toggledLayer.setVisible(!toggledLayer.getVisible());
+    if (toggledLayer.getVisible()) {
+        document.getElementById("showHideButton"+filterId).innerText = "Show";
+        toggledLayer.setVisible(false);
+    } else {
+        document.getElementById("showHideButton"+filterId).innerText = "Hide";
+        toggledLayer.setVisible(true);
+    }
 };
 
 document.getElementById("filterButton").onclick = () => filter(0);
 
-document.getElementById("showHideButton").onclick = () => toggleVisibility(0);
+document.getElementById("showHideButton0").onclick = () => toggleVisibility(0);
 
 document.getElementById("clearButton").onclick = () => clearFilter(0);
 
@@ -438,15 +439,19 @@ document.getElementById("addFilter").onclick = () => {
         style: (feature) => {
             // if the animation is still active for a feature, do not
             // render the feature with the layer style
+            return travelStyleFunction(feature);
+            /*
             if (feature.get('finished')) {
                 return travelStyleFunction(feature);
             } else {
                 return null;
             }
+            */
         },
         updateWhileAnimating: true, // optional, for instant visual feedback
         updateWhileInteracting: true // optional, for instant visual feedback
     });
+    filterLayer.setVisible(false);
     map.addLayer(filterLayer);
     const para = document.createElement("div");
     para.id = "filter" + filterCount;
@@ -456,8 +461,8 @@ document.getElementById("addFilter").onclick = () => {
             and <input type="number" id="yearEnd${filterCount}">
             <button onclick="filter(${filterCount})">Filter</button>
             <button onclick="clearFilter(${filterCount})">Clear</button>
-            <button onclick="toggleVisibility(${filterCount})">Show/Hide</button>
-            <button onclick="removeFilter(${filterCount})">Remove</button>`;
+            <button onclick="toggleVisibility(${filterCount})" id="showHideButton${filterCount}">Show</button>
+            <button onclick="animate(${filterCount})">Animate< /button>`;
     const element = document.getElementById("filters");
     element.appendChild(para);
     filterCount++;
