@@ -17,14 +17,19 @@
         <div id="popup-content"></div>
     </div>
     <div class="slidecontainer">
-        Animation speed : <input type="range" min="1" max="40" value="2" class="slider" id="myRange">
+        <label for="animationSpeed">Animation speed :</label>
+        <input type="range" min="1" max="40" value="2" class="slider" id="animationSpeed">
     </div>
     <div id="filters">
         <div style="color:rgb(230, 25, 75);">
-            Author:<input type="text" id="author0">
-            Title:<input type="text" id="title0">
-            Between:<input type="number" id="yearBegin0">
-            and <input type="number" id="yearEnd0">
+            <label for="author0">Author :</label>
+            <input type="text" id="author0">
+            <label for="title0">Title :</label>
+            <input type="text" id="title0">
+            <label for="yearBegin0">Between :</label>
+            <input type="number" id="yearBegin0">
+            <label for="yearEnd0">and :</label>
+            <input type="number" id="yearEnd0">
             <button id="filterButton0">Filter</button>
             <button id="clearButton0">Clear</button>
             <button id="showHideButton0" disabled>Hide</button>

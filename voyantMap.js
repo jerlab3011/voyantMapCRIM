@@ -101,7 +101,7 @@ map.on('singleclick', (event) => {
 });
 
 // Change animation speed when slider is moved
-const slider = document.getElementById("myRange");
+const slider = document.getElementById("animationSpeed");
 slider.value = pointsPerMs * 40;
 
 slider.oninput = () => {
@@ -482,10 +482,14 @@ document.getElementById("addFilter").onclick = () => {
     const para = document.createElement("div");
     para.id = "filter" + filterCount;
     para.style.color = colors[filterCount];
-    para.innerHTML = `Author:<input type="text" id="author${filterCount}">
-            Title:<input type="text" id="title${filterCount}">
-            Between:<input type="number" id="yearBegin${filterCount}">
-            and <input type="number" id="yearEnd${filterCount}">
+    para.innerHTML = `<label for="author${filterCount}">Author :</label>
+                        <input type="text" id="author${filterCount}">
+                        <label for="title${filterCount}">Title :</label>
+                        <input type="text" id="title${filterCount}">
+                        <label for="yearBegin${filterCount}">Between :</label>
+                        <input type="number" id="yearBegin${filterCount}">
+                        <label for="yearEnd${filterCount}">and :</label>
+                        <input type="number" id="yearEnd${filterCount}">
             <button onclick="filter(${filterCount})">Filter</button>
             <button onclick="clearFilter(${filterCount})">Clear</button>
             <button onclick="toggleVisibility(${filterCount})" disabled id="showHideButton${filterCount}">Show</button>
