@@ -109,30 +109,39 @@ const travelStyleFunction = (feature) => {
     } else if (feature.get("color")) {
         color = feature.get("color");
     }
+
+    const stroke = new ol.style.Stroke({
+        color: color,
+        width: 1 + feature.get("occurences") * 0.5
+    });
+
     const styles = [
         new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: color,
-                width: 1 + feature.get("occurences") * 0.5
-            })
+            stroke: stroke
         })];
 
-    // Create arrow to show vector direction
+    // Add arrow at the end of vectors
     const geometry = feature.getGeometry();
     const end = geometry.getLastCoordinate();
     const beforeEnd = geometry.getCoordinateAt(0.9);
     const dx = end[0] - beforeEnd[0];
     const dy = end[1] - beforeEnd[1];
     const rotation = Math.atan2(dy, dx);
+
+    const lineStr1 = new ol.geom.LineString([end, [end[0] - 200000, end[1] + 200000]]);
+    lineStr1.rotate(rotation, end);
+    const lineStr2 = new ol.geom.LineString([end, [end[0] - 200000, end[1] - 200000]]);
+    lineStr2.rotate(rotation, end);
+
     styles.push(new ol.style.Style({
-        geometry: new ol.geom.Point(end),
-        image: new ol.style.Icon({
-            src: 'https://openlayers.org/en/v4.6.4/examples/data/arrow.png',
-            anchor: [0.75, 0.5],
-            rotateWithView: true,
-            rotation: -rotation
-        })
+        geometry: lineStr1,
+        stroke: stroke
     }));
+    styles.push(new ol.style.Style({
+        geometry: lineStr2,
+        stroke: stroke
+    }));
+
     return styles;
 };
 
@@ -303,8 +312,8 @@ const filter = (filterId) => {
             const yearEnd = document.getElementById("yearEnd"+filterId).value;
             let infos = travel.infos.filter((info) => info.author.includes(author));
             infos = infos.filter((info) => info.title.includes(title));
-            infos = yearBegin == "" ? infos : infos.filter((info) => info.year >= yearBegin);
-            infos = yearEnd == "" ? infos : infos.filter((info) => info.year <= yearEnd);
+            infos = yearBegin === "" ? infos : infos.filter((info) => info.year >= yearBegin);
+            infos = yearEnd === "" ? infos : infos.filter((info) => info.year <= yearEnd);
 
             if(infos.length !== 0){
                 const text = travel.description + "(" + infos.length + ")";
@@ -361,8 +370,8 @@ const showAnimation = (filterId) => {
             const yearEnd = document.getElementById("yearEnd"+filterId).value;
             let infos = travel.infos.filter((info) => info.author.includes(author));
             infos = infos.filter((info) => info.title.includes(title));
-            infos = yearBegin == "" ? infos : infos.filter((info) => info.year >= yearBegin);
-            infos = yearEnd == "" ? infos : infos.filter((info) => info.year <= yearEnd);
+            infos = yearBegin === "" ? infos : infos.filter((info) => info.year >= yearBegin);
+            infos = yearEnd === "" ? infos : infos.filter((info) => info.year <= yearEnd);
 
             if(infos.length !== 0){
                 const text = travel.description + "(" + infos.length + ")";
