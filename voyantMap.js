@@ -1,8 +1,8 @@
 // Speed of vectors drawing
-const pointsPerMs = 0.1;
+let pointsPerMs = 0.1;
 
 // Time between vectors drawing
-const delayBetweenVectors = 100;
+let delayBetweenVectors = 100 / pointsPerMs;
 
 // Used to keep track of number of filters
 let filterCount = 1;
@@ -99,6 +99,15 @@ map.on('singleclick', (event) => {
         overlay.setPosition(coordinate);
     }
 });
+
+// Change animation speed when slider is moved
+const slider = document.getElementById("myRange");
+slider.value = pointsPerMs * 40;
+
+slider.oninput = () => {
+    pointsPerMs = slider.value / 40.0;
+    delayBetweenVectors = 100 / pointsPerMs;
+};
 
 // Style for vector after animation
 const travelStyleFunction = (feature, resolution) => {
