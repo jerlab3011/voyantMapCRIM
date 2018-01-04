@@ -101,7 +101,7 @@ map.on('singleclick', (event) => {
 });
 
 // Style for vector after animation
-const travelStyleFunction = (feature) => {
+const travelStyleFunction = (feature, resolution) => {
     // default color is red, selected feature is blue and first 8 layers have pre-defined colors
     let color = "rgba(255, 0, 0, 0.5)";
     if (feature.get("selected")) {
@@ -128,9 +128,9 @@ const travelStyleFunction = (feature) => {
     const dy = end[1] - beforeEnd[1];
     const rotation = Math.atan2(dy, dx);
 
-    const lineStr1 = new ol.geom.LineString([end, [end[0] - 200000, end[1] + 200000]]);
+    const lineStr1 = new ol.geom.LineString([end, [end[0] - 10 * resolution, end[1] + 10 * resolution]]);
     lineStr1.rotate(rotation, end);
-    const lineStr2 = new ol.geom.LineString([end, [end[0] - 200000, end[1] - 200000]]);
+    const lineStr2 = new ol.geom.LineString([end, [end[0] - 10 * resolution, end[1] - 10 * resolution]]);
     lineStr2.rotate(rotation, end);
 
     styles.push(new ol.style.Style({
@@ -216,7 +216,7 @@ const travelsLayer = new ol.layer.Vector({
         // if the animation is still active for a feature, do not
         // render the feature with the layer style
         if (feature.get('finished')) {
-            return travelStyleFunction(feature);
+            return travelStyleFunction(feature, map.getView().getResolution());
         } else {
             return null;
         }
@@ -348,7 +348,6 @@ const filter = (filterId) => {
 
 // Called when the animate button is pressed.
 const showAnimation = (filterId) => {
-    console.log("animating layer "  + filterId);
     const layers = map.getLayers();
     let i = 0;
     while(layers.item(i).get("id") !== "layer" + filterId) {
@@ -462,7 +461,7 @@ document.getElementById("addFilter").onclick = () => {
             // if the animation is still active for a feature, do not
             // render the feature with the layer style
             if (feature.get('finished')) {
-                return travelStyleFunction(feature);
+                return travelStyleFunction(feature, map.getView().getResolution());
             } else {
                 return null;
             }
