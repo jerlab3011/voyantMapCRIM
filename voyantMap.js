@@ -10,11 +10,11 @@ let filterCount = 1;
 // Colors of the different filters
 const colors = [
     "rgb(230, 25, 75)",
-    "rgb(60, 180, 75)",
+    "rgb(0,92,49)",
     "rgb(145, 30, 180)",
     "rgb(128, 0, 0)",
     "rgb(0, 0, 128)",
-    "rgb(0,92,49)",
+    "rgb(60, 180, 75)",
     "rgb(143,124,0)",
     "rgb(157,204,0)",
 ];
@@ -322,7 +322,7 @@ const filter = (filterId) => {
                     {x: from[1], y: from[0]},
                     {x: to[1], y: to[0]});
 
-                const arcLine = arcGenerator.Arc(100, {offset: 10});
+                const arcLine = arcGenerator.Arc(1000, {offset: 10});
                 if (arcLine.geometries.length === 1) {
                     const line = new ol.geom.LineString(arcLine.geometries[0].coords);
                     line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
@@ -348,6 +348,7 @@ const filter = (filterId) => {
 
 // Called when the animate button is pressed.
 const showAnimation = (filterId) => {
+    console.log("animating layer "  + filterId);
     const layers = map.getLayers();
     let i = 0;
     while(layers.item(i).get("id") !== "layer" + filterId) {
