@@ -7,6 +7,8 @@ let delayBetweenVectors = 100 / pointsPerMs;
 // Used to keep track of number of filters
 let filterCount = 1;
 
+let timedEvents = [[]];
+
 // Colors of the different filters
 const colors = [
     "rgb(230, 25, 75)",
@@ -47,7 +49,7 @@ const map = new ol.Map({
             preload: Infinity,
             source: new ol.source.Stamen({
                 //cacheSize: 2048,
-                layer: 'watercolor',
+                layer: 'watercolor'
             })
         }),
 
@@ -167,7 +169,7 @@ const vectorStyleFunction = (feature) => {
 
 // Add feature to layer with a delay
 const addLater = (feature, timeout, layerId) => {
-    window.setTimeout(() => {
+    const timedEvent = window.setTimeout(() => {
         feature.set('start', new Date().getTime());
         const layers = map.getLayers();
         let i = 0;
@@ -178,6 +180,7 @@ const addLater = (feature, timeout, layerId) => {
         const source = layer.getSource();
         source.addFeature(feature);
     }, timeout);
+    timedEvents[layerId].push(timedEvent);
 };
 
 // Animate travels for a layer
@@ -299,6 +302,7 @@ map.on('pointermove', (event) => {
 
 // Called when the filter button is pressed. Shows all vectors instantly.
 const filter = (filterId) => {
+    timedEvents[filterId].forEach(event => window.clearTimeout(event));
     const layers = map.getLayers();
     let i = 0;
     while(layers.item(i).get("id") !== "layer" + filterId) {
@@ -357,6 +361,7 @@ const filter = (filterId) => {
 
 // Called when the animate button is pressed.
 const showAnimation = (filterId) => {
+    timedEvents[filterId].forEach(event => window.clearTimeout(event));
     const layers = map.getLayers();
     let i = 0;
     while(layers.item(i).get("id") !== "layer" + filterId) {
@@ -416,6 +421,7 @@ const showAnimation = (filterId) => {
 
 // Clear filter fields and layer
 const clearFilter = (filterId) => {
+    timedEvents[filterId].forEach(event => window.clearTimeout(event));
     document.getElementById("author"+filterId).value = "";
     document.getElementById("title"+filterId).value = "";
     document.getElementById("yearBegin"+filterId).value = "";
@@ -432,6 +438,7 @@ const clearFilter = (filterId) => {
 
 // Called when the visibility button is pressed. Shows or hides layer
 const toggleVisibility = (filterId) => {
+    timedEvents[filterId].forEach(event => window.clearTimeout(event));
     const layers = map.getLayers();
     let i = 0;
     while(layers.item(i).get("id") !== "layer" + filterId) {
@@ -458,6 +465,7 @@ document.getElementById("animateButton0").onclick = () => showAnimation(0);
 
 // Called when the Add Filter button is pressed. Create new fields and layer.
 document.getElementById("addFilter").onclick = () => {
+    timedEvents[filterCount] = [];
     const filterLayer = new ol.layer.Vector({
         source: new ol.source.Vector({
             wrapX: false,
