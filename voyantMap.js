@@ -1,8 +1,9 @@
 // Speed of vectors drawing
-let pointsPerMs = 0.1;
+let pointsPerMs = 0.3;
 
+const pointsPerArc = 500;
 // Time between vectors drawing
-let delayBetweenVectors = 100 / pointsPerMs;
+let delayBetweenVectors = pointsPerArc / pointsPerMs;
 
 // Used to keep track of number of filters
 let filterCount = 1;
@@ -108,7 +109,7 @@ slider.value = pointsPerMs * 40;
 
 slider.oninput = () => {
     pointsPerMs = slider.value / 40.0;
-    delayBetweenVectors = 100 / pointsPerMs;
+    delayBetweenVectors = pointsPerArc / pointsPerMs;
 };
 
 // Style for vector after animation
@@ -300,8 +301,8 @@ map.on('pointermove', (event) => {
     }
 });
 
-// Called when the filter button is pressed. Shows all vectors instantly.
-const filter = (filterId) => {
+// Called when the filter or animate button is pressed. Shows all vectors instantly or animate them.
+const filter = (filterId, animate) => {
     timedEvents[filterId].forEach(event => window.clearTimeout(event));
     const layers = map.getLayers();
     let i = 0;
@@ -319,12 +320,12 @@ const filter = (filterId) => {
         travelsData.forEach((travel) => {
             const from = travel.coordinates[0];
             const to = travel.coordinates[1];
-            const author = document.getElementById("author"+filterId).value;
-            const title = document.getElementById("title"+filterId).value;
+            const author = document.getElementById("author"+filterId).value.toLowerCase();
+            const title = document.getElementById("title"+filterId).value.toLowerCase();
             const yearBegin = document.getElementById("yearBegin"+filterId).value;
             const yearEnd = document.getElementById("yearEnd"+filterId).value;
-            let infos = travel.infos.filter((info) => info.author.includes(author));
-            infos = infos.filter((info) => info.title.includes(title));
+            let infos = travel.infos.filter((info) => info.author.toLowerCase().includes(author));
+            infos = infos.filter((info) => info.title.toLowerCase().includes(title));
             infos = yearBegin === "" ? infos : infos.filter((info) => info.year >= yearBegin);
             infos = yearEnd === "" ? infos : infos.filter((info) => info.year <= yearEnd);
 
@@ -335,7 +336,7 @@ const filter = (filterId) => {
                     {x: from[1], y: from[0]},
                     {x: to[1], y: to[0]});
 
-                const arcLine = arcGenerator.Arc(1000, {offset: 10});
+                const arcLine = arcGenerator.Arc(pointsPerArc, {offset: 100});
                 if (arcLine.geometries.length === 1) {
                     const line = new ol.geom.LineString(arcLine.geometries[0].coords);
                     line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
@@ -343,78 +344,24 @@ const filter = (filterId) => {
                     const feature = new ol.Feature({
                         geometry: line,
                         text: text,
-                        finished: true,
+                        finished: !animate,
                         occurences: infos.length,
                         infos: infos,
                         color: color,
                     });
-                    // add the feature with a delay so that the animation
-                    // for all features does not start at the same time
-                    addLater(feature, 0, filterId);
-                    i++
+                    // Add feature with delay if animate parameter is true
+                    if (animate) {
+                        addLater(feature, i * delayBetweenVectors, filterId);
+                        i++;
+                    } else {
+                        addLater(feature, 0, filterId);
+                    }
                 }
             }
         });
-    });
-    document.getElementById("showHideButton"+filterId).disabled = false;
-};
-
-// Called when the animate button is pressed.
-const showAnimation = (filterId) => {
-    timedEvents[filterId].forEach(event => window.clearTimeout(event));
-    const layers = map.getLayers();
-    let i = 0;
-    while(layers.item(i).get("id") !== "layer" + filterId) {
-        i++;
-    }
-    const vectorLayer = layers.item(i);
-    vectorLayer.setVisible(true);
-    document.getElementById("showHideButton"+filterId).innerText = "Hide";
-    vectorLayer.getSource().clear();
-    const url = 'travels.json';
-    fetch(url).then((response) => response.json()).then((json) => {
-        const travelsData = json.travels;
-        let i = 0;
-        travelsData.forEach((travel) => {
-            const from = travel.coordinates[0];
-            const to = travel.coordinates[1];
-            const author = document.getElementById("author"+filterId).value;
-            const title = document.getElementById("title"+filterId).value;
-            const yearBegin = document.getElementById("yearBegin"+filterId).value;
-            const yearEnd = document.getElementById("yearEnd"+filterId).value;
-            let infos = travel.infos.filter((info) => info.author.includes(author));
-            infos = infos.filter((info) => info.title.includes(title));
-            infos = yearBegin === "" ? infos : infos.filter((info) => info.year >= yearBegin);
-            infos = yearEnd === "" ? infos : infos.filter((info) => info.year <= yearEnd);
-
-            if(infos.length !== 0){
-                const text = travel.description + "(" + infos.length + ")";
-                // create an arc circle between the two locations
-                const arcGenerator = new arc.GreatCircle(
-                    {x: from[1], y: from[0]},
-                    {x: to[1], y: to[0]});
-
-                const arcLine = arcGenerator.Arc(100, {offset: 10});
-                if (arcLine.geometries.length === 1) {
-                    const line = new ol.geom.LineString(arcLine.geometries[0].coords);
-                    line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
-                    const color = colors[filterId];
-                    const feature = new ol.Feature({
-                        geometry: line,
-                        text: text,
-                        finished: false,
-                        occurences: infos.length,
-                        infos: infos,
-                        color: color,
-                    });
-                    // add the feature with a delay so that the animation
-                    // for all features does not start at the same time
-                    addLater(feature, i * delayBetweenVectors, filterId);
-                    i++
-                }
-            }
-        });
-        map.on('postcompose', (event) => animateTravels(event, filterId));
+        if (animate) {
+            map.on('postcompose', (event) => animateTravels(event, filterId));
+        }
     });
     document.getElementById("showHideButton"+filterId).disabled = false;
 };
@@ -455,13 +402,13 @@ const toggleVisibility = (filterId) => {
 };
 
 // Attach onclicks event to first layer buttons
-document.getElementById("filterButton0").onclick = () => filter(0);
+document.getElementById("filterButton0").onclick = () => filter(0, false);
 
 document.getElementById("showHideButton0").onclick = () => toggleVisibility(0);
 
 document.getElementById("clearButton0").onclick = () => clearFilter(0);
 
-document.getElementById("animateButton0").onclick = () => showAnimation(0);
+document.getElementById("animateButton0").onclick = () => filter(0, true);
 
 // Called when the Add Filter button is pressed. Create new fields and layer.
 document.getElementById("addFilter").onclick = () => {
@@ -491,17 +438,17 @@ document.getElementById("addFilter").onclick = () => {
     para.id = "filter" + filterCount;
     para.style.color = colors[filterCount];
     para.innerHTML = `<label for="author${filterCount}">Author :</label>
-                        <input type="text" id="author${filterCount}">
-                        <label for="title${filterCount}">Title :</label>
-                        <input type="text" id="title${filterCount}">
-                        <label for="yearBegin${filterCount}">Between :</label>
-                        <input type="number" id="yearBegin${filterCount}">
-                        <label for="yearEnd${filterCount}">and :</label>
-                        <input type="number" id="yearEnd${filterCount}">
-            <button onclick="filter(${filterCount})">Filter</button>
+            <input type="text" id="author${filterCount}">
+            <label for="title${filterCount}">Title :</label>
+            <input type="text" id="title${filterCount}">
+            <label for="yearBegin${filterCount}">Between :</label>
+            <input type="number" id="yearBegin${filterCount}">
+            <label for="yearEnd${filterCount}">and :</label>
+            <input type="number" id="yearEnd${filterCount}">
+            <button onclick="filter(${filterCount}, false)">Filter</button>
             <button onclick="clearFilter(${filterCount})">Clear</button>
             <button onclick="toggleVisibility(${filterCount})" disabled id="showHideButton${filterCount}">Show</button>
-            <button onclick="showAnimation(${filterCount})">Animate</button>`;
+            <button onclick="filter(${filterCount}, true)">Animate</button>`;
     const element = document.getElementById("filters");
     element.appendChild(para);
     filterCount++;
