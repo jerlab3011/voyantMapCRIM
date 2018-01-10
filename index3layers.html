@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voyant Map</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.5.0/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+    <script
+        src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <script src="lib/ol.js"></script>
+    <script src="lib/arc.js"></script>
+</head>
+<body>
+<div id="map" class="map"></div>
+<div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content"></div>
+</div>
+<div class="slidecontainer">
+    <label for="animationSpeed">Animation speed :</label>
+    <input type="range" min="1" max="40" value="2" class="slider" id="animationSpeed">
+</div>
+<div id="filters">
+    <div style="color:rgb(230, 25, 75);">
+        <label for="author0">Author :</label>
+        <input type="text" id="author0">
+        <label for="title0">Title :</label>
+        <input type="text" id="title0">
+        <label for="yearBegin0">Between :</label>
+        <input type="number" id="yearBegin0">
+        <label for="yearEnd0">and :</label>
+        <input type="number" id="yearEnd0">
+        <button id="filterButton0">Filter</button>
+        <button id="clearButton0">Clear</button>
+        <button id="showHideButton0" disabled>Hide</button>
+        <button id="animateButton0">Animate</button>
+    </div>
+</div>
+<button id="addFilter">Add filter</button>
+<script src="voyantMap3layers.js"></script>
+</body>
+</html>
