@@ -401,7 +401,10 @@ const filter = (filterId) => {
     });
     document.getElementById("showHideButton" + filterId).disabled = false;
     document.getElementById("showHideCitiesButton" + filterId).disabled = false;
-    document.getElementById("animateButton" + filterId).disabled = false;
+    const button = document.getElementById("animateButton"+filterId);
+    button.disabled = false;
+    button.innerText = "Animate";
+    button.onclick = () => animateLayer(filterId);
 };
 
 // Called when the animate button is pressed
@@ -435,6 +438,16 @@ const animateLayer = (filterId) => {
         }
     });
     map.on('postcompose', (event) => animateTravels(event, filterId));
+    const button = document.getElementById("animateButton"+filterId);
+    button.innerText = "Stop";
+    button.onclick = () => stopAnimation(filterId);
+};
+
+const stopAnimation = (filterId) => {
+    timedEvents[filterId].forEach(event => window.clearTimeout(event));
+    const button = document.getElementById("animateButton"+filterId);
+    button.innerText = "Animate";
+    button.onclick = () => animateLayer(filterId);
 };
 
 // Clear filter fields and layer
@@ -450,7 +463,10 @@ const clearFilter = (filterId) => {
     map.getLayer("cities" + filterId).getSource().clear();
     document.getElementById("showHideButton" + filterId).disabled = true;
     document.getElementById("showHideCitiesButton" + filterId).disabled = true;
-    document.getElementById("animateButton" + filterId).disabled = true;
+    const button = document.getElementById("animateButton"+filterId);
+    button.disabled = true;
+    button.innerText = "Animate";
+    button.onclick = () => animateLayer(filterId);
 };
 
 // Called when the travels visibility button is pressed.
@@ -470,10 +486,10 @@ const toggleCitiesVisibility = (filterId) => {
     cities[filterId] = {};
     const toggledLayer = map.getLayer("cities" + filterId);
     if (toggledLayer.getVisible()) {
-        document.getElementById("showHideCitiesButton" + filterId).innerText = "Show Cities";
+        document.getElementById("showHideCitiesButton" + filterId).innerText = "Show cities";
         toggledLayer.setVisible(false);
     } else {
-        document.getElementById("showHideCitiesButton" + filterId).innerText = "Hide Cities";
+        document.getElementById("showHideCitiesButton" + filterId).innerText = "Hide cities";
         toggledLayer.setVisible(true);
     }
 };
