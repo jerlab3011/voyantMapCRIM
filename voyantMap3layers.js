@@ -191,13 +191,41 @@ const vectorStyleFunction = (feature) => {
     }));
 };
 
-// Add feature to layer with a delay
+// Add feature to animation layer with a delay
 const addLater = (feature, timeout, layerId) => {
     const timedEvent = window.setTimeout(() => {
         feature.set('start', new Date().getTime());
         const layers = map.getLayers();
         let i = 0;
-        while(layers.item(i).get("id") !== "layer" + layerId) {
+        while(layers.item(i).get("id") !== "animation" + layerId) {
+            i++;
+        }
+        const layer = layers.item(i);
+        const source = layer.getSource();
+        source.addFeature(feature);
+    }, timeout);
+    timedEvents[layerId].push(timedEvent);
+};
+
+// Add feature to filter layer
+const addNow = (feature, layerId) => {
+    const layers = map.getLayers();
+    let i = 0;
+    while(layers.item(i).get("id") !== "layer" + layerId) {
+        i++;
+    }
+    const layer = layers.item(i);
+    const source = layer.getSource();
+    source.addFeature(feature);
+};
+
+// Add feature to layer with a delay
+const addCity = (feature, timeout, layerId) => {
+    const timedEvent = window.setTimeout(() => {
+        feature.set('start', new Date().getTime());
+        const layers = map.getLayers();
+        let i = 0;
+        while(layers.item(i).get("id") !== "cities" + layerId) {
             i++;
         }
         const layer = layers.item(i);
@@ -213,7 +241,7 @@ const animateTravels = (event, layerId) => {
     const frameState = event.frameState;
     const layers = map.getLayers();
     let i = 0;
-    while(layers.item(i).get("id") !== "layer" + layerId) {
+    while(layers.item(i).get("id") !== "animation" + layerId) {
         i++;
     }
     const layer = layers.item(i);
@@ -252,7 +280,7 @@ const travelsLayer = new ol.layer.Vector({
         useSpatialIndex: false // optional, might improve performance
     }),
     id: "layer0",
-    opacity: 0.7,
+    opacity: 0.4,
     style: (feature) => {
         // if the animation is still active for a feature, do not
         // render the feature with the layer style
@@ -267,6 +295,49 @@ const travelsLayer = new ol.layer.Vector({
 });
 map.addLayer(travelsLayer);
 
+// Initial cities layer for first filter
+const citiesLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({
+        wrapX: false,
+        useSpatialIndex: false // optional, might improve performance
+    }),
+    id: "cities0",
+    opacity: 0.7,
+    style: (feature) => {
+        // if the animation is still active for a feature, do not
+        // render the feature with the layer style
+        if (feature.getGeometry().getType() === "Circle") {
+            return cityStyleFunction(feature, map.getView().getResolution());
+        } else if (feature.get('finished')) {
+            return travelStyleFunction(feature, map.getView().getResolution());
+        } else {
+            return null;
+        }
+    },
+});
+map.addLayer(citiesLayer);
+
+// Initial animation layer for first filter
+const animationLayer = new ol.layer.Vector({
+    source: new ol.source.Vector({
+        wrapX: false,
+        useSpatialIndex: false // optional, might improve performance
+    }),
+    id: "animation0",
+    opacity: 0.4,
+    style: (feature) => {
+        // if the animation is still active for a feature, do not
+        // render the feature with the layer style
+        if (feature.getGeometry().getType() === "Circle") {
+            return cityStyleFunction(feature, map.getView().getResolution());
+        } else if (feature.get('finished')) {
+            return travelStyleFunction(feature, map.getView().getResolution());
+        } else {
+            return null;
+        }
+    },
+});
+map.addLayer(animationLayer);
 
 // Layer for selected vector
 const selectedLayer = new ol.layer.Vector({
@@ -339,18 +410,27 @@ map.on('pointermove', (event) => {
     }
 });
 
+
 // Called when the filter or animate button is pressed. Shows all vectors instantly or animate them.
 const filter = (filterId, animate) => {
-    cities[filterId] = {};
+    console.log("calling filter with animate = " + animate);
     timedEvents[filterId].forEach(event => window.clearTimeout(event));
     const layers = map.getLayers();
     let i = 0;
-    while(layers.item(i).get("id") !== "layer" + filterId) {
-        i++;
+    if(animate) {
+        while(layers.item(i).get("id") !== "animation" + filterId) {
+            i++;
+        }
+    } else {
+        cities[filterId] = {};
+        while(layers.item(i).get("id") !== "layer" + filterId) {
+            i++;
+        }
     }
     const vectorLayer = layers.item(i);
     vectorLayer.setVisible(true);
     document.getElementById("showHideButton"+filterId).innerText = "Hide";
+    document.getElementById("showHideCitiesButton"+filterId).innerText = "Hide Cities";
     vectorLayer.getSource().clear();
     const url = 'cities.json';
     fetch(url).then((response) => response.json()).then((json) => {
@@ -363,30 +443,26 @@ const filter = (filterId, animate) => {
             const yearBegin = document.getElementById("yearBegin"+filterId).value;
             const yearEnd = document.getElementById("yearEnd"+filterId).value;
             if(city.infos[0].author.toLowerCase().includes(author) &&
-                    city.infos[0].title.toLowerCase().includes(title) &&
-                    (yearBegin === "" || city.infos[0].year >= yearBegin) &&
-                    (yearEnd === "" || city.infos[0].year <= yearEnd)) {
+                city.infos[0].title.toLowerCase().includes(title) &&
+                (yearBegin === "" || city.infos[0].year >= yearBegin) &&
+                (yearEnd === "" || city.infos[0].year <= yearEnd)) {
                 const coordinates = [parseFloat(city.coordinates[1]), parseFloat(city.coordinates[0])];
-                if(!cities[filterId][city.coordinates]) {
+                if(!cities[filterId][city.coordinates] && !animate) {
                     const circle = new ol.geom.Circle(coordinates);
                     circle.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
                     const color = colors[filterId];
                     const feature = new ol.Feature({
                         geometry: circle,
                         text: city.description,
-                        finished: !animate,
+                        finished: true,
                         infos: city.infos,
                         color: color,
                         occurences: 1,
                     });
                     // Add feature with delay if animate parameter is true
-                    if (animate && previousCity) {
-                        addLater(feature, (i + 1) * delayBetweenVectors, filterId);
-                    } else {
-                        addLater(feature, 0, filterId);
-                    }
+                    addCity(feature, 0, filterId);
                     cities[filterId][city.coordinates] = feature;
-                } else {
+                } else if (!animate){
                     const feature = cities[filterId][city.coordinates];
                     const occurences = feature.get("occurences") + 1;
                     const infos = feature.get("infos");
@@ -418,7 +494,7 @@ const filter = (filterId, animate) => {
                             addLater(feature, i * delayBetweenVectors, filterId);
                             i++;
                         } else {
-                            addLater(feature, 0, filterId);
+                            addNow(feature, filterId);
                         }
                     })
                 }
@@ -430,6 +506,8 @@ const filter = (filterId, animate) => {
         }
     });
     document.getElementById("showHideButton"+filterId).disabled = false;
+    document.getElementById("showHideCitiesButton"+filterId).disabled = false;
+
 };
 
 // Clear filter fields and layer
@@ -445,8 +523,21 @@ const clearFilter = (filterId) => {
     while(layers.item(i).get("id") !== "layer" + filterId) {
         i++;
     }
-    const clearedLayer = layers.item(i);
+    let clearedLayer = layers.item(i);
+    clearedLayer.getSource().clear();
+    i = 0;
+    while(layers.item(i).get("id") !== "animation" + filterId) {
+        i++;
+    }
+    clearedLayer = layers.item(i);
+    clearedLayer.getSource().clear();
+    i = 0;
+    while(layers.item(i).get("id") !== "cities" + filterId) {
+        i++;
+    }
+    clearedLayer = layers.item(i);
     document.getElementById("showHideButton"+filterId).disabled = true;
+    document.getElementById("showHideCitiesButton"+filterId).disabled = true;
     clearedLayer.getSource().clear();
 };
 
@@ -469,6 +560,24 @@ const toggleVisibility = (filterId) => {
     }
 };
 
+// Called when the visibility button is pressed. Shows or hides layer
+const toggleCitiesVisibility = (filterId) => {
+    cities[filterId] = {};
+    const layers = map.getLayers();
+    let i = 0;
+    while(layers.item(i).get("id") !== "cities" + filterId) {
+        i++;
+    }
+    const toggledLayer = layers.item(i);
+    if (toggledLayer.getVisible()) {
+        document.getElementById("showHideCitiesButton"+filterId).innerText = "Show Cities";
+        toggledLayer.setVisible(false);
+    } else {
+        document.getElementById("showHideCitiesButton"+filterId).innerText = "Hide Cities";
+        toggledLayer.setVisible(true);
+    }
+};
+
 // Attach onclicks event to first layer buttons
 document.getElementById("filterButton0").onclick = () => filter(0, false);
 
@@ -477,6 +586,8 @@ document.getElementById("showHideButton0").onclick = () => toggleVisibility(0);
 document.getElementById("clearButton0").onclick = () => clearFilter(0);
 
 document.getElementById("animateButton0").onclick = () => filter(0, true);
+
+document.getElementById("showHideCitiesButton0").onclick = () => toggleCitiesVisibility(0);
 
 // Called when the Add Filter button is pressed. Create new fields and layer.
 document.getElementById("addFilter").onclick = () => {
@@ -521,7 +632,7 @@ document.getElementById("addFilter").onclick = () => {
             <input type="number" id="yearBegin${filterCount}">
             <label for="yearEnd${filterCount}">and :</label>
             <input type="number" id="yearEnd${filterCount}">
-            <button onclick="filter(${filterCount}, false)">Filter</button>
+            <button onclick="filter(${filterCount})">Filter</button>
             <button onclick="clearFilter(${filterCount})">Clear</button>
             <button onclick="toggleVisibility(${filterCount})" disabled id="showHideButton${filterCount}">Show</button>
             <button onclick="filter(${filterCount}, true)">Animate</button>`;
