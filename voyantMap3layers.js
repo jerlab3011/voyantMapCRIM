@@ -6,7 +6,7 @@ const pointsPerArc = 500;
 let delayBetweenVectors = pointsPerArc / pointsPerMs;
 
 // Used to keep track of number of filters
-let filterCount = 1;
+let filterCount = 0;
 
 let timedEvents = [[]];
 
@@ -273,72 +273,6 @@ const animateTravels = (event, layerId) => {
     map.render();
 };
 
-// Initial layer for first filter
-const travelsLayer = new ol.layer.Vector({
-    source: new ol.source.Vector({
-        wrapX: false,
-        useSpatialIndex: false // optional, might improve performance
-    }),
-    id: "layer0",
-    opacity: 0.4,
-    style: (feature) => {
-        // if the animation is still active for a feature, do not
-        // render the feature with the layer style
-        if (feature.getGeometry().getType() === "Circle") {
-            return cityStyleFunction(feature, map.getView().getResolution());
-        } else if (feature.get('finished')) {
-            return travelStyleFunction(feature, map.getView().getResolution());
-        } else {
-            return null;
-        }
-    },
-});
-map.addLayer(travelsLayer);
-
-// Initial cities layer for first filter
-const citiesLayer = new ol.layer.Vector({
-    source: new ol.source.Vector({
-        wrapX: false,
-        useSpatialIndex: false // optional, might improve performance
-    }),
-    id: "cities0",
-    opacity: 0.7,
-    style: (feature) => {
-        // if the animation is still active for a feature, do not
-        // render the feature with the layer style
-        if (feature.getGeometry().getType() === "Circle") {
-            return cityStyleFunction(feature, map.getView().getResolution());
-        } else if (feature.get('finished')) {
-            return travelStyleFunction(feature, map.getView().getResolution());
-        } else {
-            return null;
-        }
-    },
-});
-map.addLayer(citiesLayer);
-
-// Initial animation layer for first filter
-const animationLayer = new ol.layer.Vector({
-    source: new ol.source.Vector({
-        wrapX: false,
-        useSpatialIndex: false // optional, might improve performance
-    }),
-    id: "animation0",
-    opacity: 0.4,
-    style: (feature) => {
-        // if the animation is still active for a feature, do not
-        // render the feature with the layer style
-        if (feature.getGeometry().getType() === "Circle") {
-            return cityStyleFunction(feature, map.getView().getResolution());
-        } else if (feature.get('finished')) {
-            return travelStyleFunction(feature, map.getView().getResolution());
-        } else {
-            return null;
-        }
-    },
-});
-map.addLayer(animationLayer);
-
 // Layer for selected vector
 const selectedLayer = new ol.layer.Vector({
     map: map,
@@ -413,7 +347,6 @@ map.on('pointermove', (event) => {
 
 // Called when the filter or animate button is pressed. Shows all vectors instantly or animate them.
 const filter = (filterId, animate) => {
-    console.log("calling filter with animate = " + animate);
     timedEvents[filterId].forEach(event => window.clearTimeout(event));
     const layers = map.getLayers();
     let i = 0;
@@ -578,20 +511,10 @@ const toggleCitiesVisibility = (filterId) => {
     }
 };
 
-// Attach onclicks event to first layer buttons
-document.getElementById("filterButton0").onclick = () => filter(0, false);
-
-document.getElementById("showHideButton0").onclick = () => toggleVisibility(0);
-
-document.getElementById("clearButton0").onclick = () => clearFilter(0);
-
-document.getElementById("animateButton0").onclick = () => filter(0, true);
-
-document.getElementById("showHideCitiesButton0").onclick = () => toggleCitiesVisibility(0);
-
 // Called when the Add Filter button is pressed. Create new fields and layer.
-document.getElementById("addFilter").onclick = () => {
+const addFilter = () => {
     timedEvents[filterCount] = [];
+
     const filterLayer = new ol.layer.Vector({
         source: new ol.source.Vector({
             wrapX: false,
@@ -621,6 +544,49 @@ document.getElementById("addFilter").onclick = () => {
         updateWhileInteracting: true // optional, for instant visual feedback
     });
     map.addLayer(filterLayer);
+
+    const citiesLayer = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            wrapX: false,
+            useSpatialIndex: false // optional, might improve performance
+        }),
+        id: "cities"+filterCount,
+        opacity: 0.7,
+        style: (feature) => {
+            // if the animation is still active for a feature, do not
+            // render the feature with the layer style
+            if (feature.getGeometry().getType() === "Circle") {
+                return cityStyleFunction(feature, map.getView().getResolution());
+            } else if (feature.get('finished')) {
+                return travelStyleFunction(feature, map.getView().getResolution());
+            } else {
+                return null;
+            }
+        },
+    });
+    map.addLayer(citiesLayer);
+
+    const animationLayer = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            wrapX: false,
+            useSpatialIndex: false // optional, might improve performance
+        }),
+        id: "animation"+filterCount,
+        opacity: 0.4,
+        style: (feature) => {
+            // if the animation is still active for a feature, do not
+            // render the feature with the layer style
+            if (feature.getGeometry().getType() === "Circle") {
+                return cityStyleFunction(feature, map.getView().getResolution());
+            } else if (feature.get('finished')) {
+                return travelStyleFunction(feature, map.getView().getResolution());
+            } else {
+                return null;
+            }
+        },
+    });
+    map.addLayer(animationLayer);
+
     const para = document.createElement("div");
     para.id = "filter" + filterCount;
     para.style.color = colors[filterCount];
@@ -635,8 +601,15 @@ document.getElementById("addFilter").onclick = () => {
             <button onclick="filter(${filterCount})">Filter</button>
             <button onclick="clearFilter(${filterCount})">Clear</button>
             <button onclick="toggleVisibility(${filterCount})" disabled id="showHideButton${filterCount}">Show</button>
-            <button onclick="filter(${filterCount}, true)">Animate</button>`;
+            <button onclick="filter(${filterCount}, true)">Animate</button>
+            <button onclick="toggleCitiesVisibility(${filterCount})" disabled id="showHideCitiesButton${filterCount}">Show Cities</button>`;
     const element = document.getElementById("filters");
     element.appendChild(para);
     filterCount++;
 };
+
+// Add first filter at launch
+addFilter();
+
+document.getElementById("addFilterButton").onclick = addFilter;
+
