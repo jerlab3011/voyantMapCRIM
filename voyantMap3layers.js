@@ -15,7 +15,12 @@ if (ol.Map.prototype.getLayer === undefined) {
 let pointsPerMs = 0.3;
 
 // Number of points per arc. More points means more dense and rounded arcs but may affect performance
-const pointsPerArc = 500;
+const pointsPerArc = 100;
+
+const opacity = [];
+for (let i = 0; i < pointsPerArc; i++) {
+    opacity[i] = 0.2 + parseFloat(i)/pointsPerArc * 0.8;
+}
 
 // Time between vectors drawing
 let delayBetweenVectors = pointsPerArc / pointsPerMs;
@@ -128,8 +133,8 @@ slider.oninput = () => {
     delayBetweenVectors = pointsPerArc / pointsPerMs;
 };
 
-// Style for vector after animation
-const travelStyleFunction = (feature, resolution) => {
+// Style for travels layer
+const oldTravelStyleFunction = (feature, resolution) => {
     // default color is red, selected feature is blue and first 8 layers have pre-defined colors
     let color = "rgb(255, 0, 0)";
     if (feature.get("selected")) {
@@ -170,6 +175,35 @@ const travelStyleFunction = (feature, resolution) => {
         stroke: stroke
     }));
 
+    return styles;
+};
+
+const strokeStyles = [];
+
+colors.forEach(function(color) {
+    strokeStyles[color] = [];
+    for(let j = 0; j < pointsPerArc; j++){
+        let segmentColor = ol.color.asArray(color);
+        segmentColor[3] = 0.2 + parseFloat(j)/pointsPerArc * 0.8;
+        segmentColor = ol.color.asString(segmentColor);
+        strokeStyles[color][j] =  new ol.style.Stroke({
+            color: segmentColor,
+            width: 3
+        })
+    }
+});
+
+const travelStyleFunction = function(feature, resolution) {
+    let i = 0;
+    const geometry = feature.getGeometry();
+    const styles = [];
+    geometry.forEachSegment(function (start, end) {
+        styles.push(new ol.style.Style({
+            geometry: new ol.geom.LineString([start, end]),
+            stroke: strokeStyles[feature.get("color")][i]
+        }));
+        i++;
+    });
     return styles;
 };
 
@@ -398,6 +432,20 @@ const filter = (filterId) => {
                 previousCity = {coordinates:coordinates, description: city.description};
             }
         });
+        vectorLayer.getSource().getFeatures().forEach(function(feature, i) {
+            var geometry = feature.getGeometry();
+            var styles = [];
+            var i = 0;
+
+            geometry.forEachSegment(function (start, end) {
+                styles.push(new ol.style.Style({
+                    geometry: new ol.geom.LineString([start, end]),
+                    stroke: strokeStyles[feature.get("color")][i]
+                }));
+                i++;
+            });
+            feature.setStyle(styles);
+        });
     });
     document.getElementById("showHideButton" + filterId).disabled = false;
     document.getElementById("showHideCitiesButton" + filterId).disabled = false;
@@ -441,6 +489,10 @@ const animateLayer = (filterId) => {
     const button = document.getElementById("animateButton"+filterId);
     button.innerText = "Stop";
     button.onclick = () => stopAnimation(filterId);
+    window.setTimeout(() => {
+        button.innerText = "Animate";
+        button.onclick = () => animateLayer(filterId);
+    }, (filterLayer.getSource().getFeatures().length - 1) * delayBetweenVectors);
 };
 
 const stopAnimation = (filterId) => {
@@ -505,10 +557,10 @@ const addFilter = () => {
         }),
         id: "layer" + filterCount,
         visible: false,
-        opacity: 0.4,
+        //opacity: 0.4,
         style: travelStyleFunction,
-        updateWhileAnimating: true, // optional, for instant visual feedback
-        updateWhileInteracting: true // optional, for instant visual feedback
+        updateWhileAnimating: false, // optional, for instant visual feedback
+        updateWhileInteracting: false // optional, for instant visual feedback
     });
     map.addLayer(filterLayer);
 
