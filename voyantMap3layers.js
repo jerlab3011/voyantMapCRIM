@@ -441,6 +441,12 @@ const animateLayer = (filterId) => {
     const button = document.getElementById("animateButton"+filterId);
     button.innerText = "Stop";
     button.onclick = () => stopAnimation(filterId);
+    // event to swich back button to animate once animation is done
+    const restoreAnimate = window.setTimeout(() => {
+        button.innerText = "Animate";
+        button.onclick = () => animateLayer(filterId);
+    }, delayBetweenVectors * (filterLayer.getSource().getFeatures().length - 1) );
+    timedEvents[filterId].push(restoreAnimate);
 };
 
 const stopAnimation = (filterId) => {
