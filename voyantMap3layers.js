@@ -558,7 +558,7 @@ const addFilter = () => {
         id: "layer" + filterCount,
         visible: false,
         //opacity: 0.4,
-        style: travelStyleFunction,
+        //style: travelStyleFunction,
         updateWhileAnimating: false, // optional, for instant visual feedback
         updateWhileInteracting: false // optional, for instant visual feedback
     });
