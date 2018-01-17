@@ -564,3 +564,8 @@ const addFilter = () => {
 addFilter();
 
 document.getElementById("addFilterButton").onclick = addFilter;
+
+// Fixes bug that displays maps wrong before browser resize
+window.setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+}, 100);
