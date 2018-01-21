@@ -10,12 +10,21 @@ if (ol.Map.prototype.getLayer === undefined) {
         return layer;
     }
 }
+// Constant that changes how zoomed the map must be for cities with less occurences to appear
+// The higher the value, the sooner small cities will appear
+const zoomTreshold = 1000;
+
+// Constant that changes how bigger cities with more occurences are compared to cities with fewer
+// The higher the value, the bigger the difference will be
+const sizeRatio = 50000;
+
+let nbOfEntries = 0;
 
 // Speed of vectors drawing
 let pointsPerMs = 0.3;
 
 // Number of points per arc. More points means more dense and rounded arcs but may affect performance
-const pointsPerArc = 500;
+const pointsPerArc = 100;
 
 // Time between vectors drawing
 let delayBetweenVectors = pointsPerArc / pointsPerMs;
@@ -174,7 +183,7 @@ const travelStyleFunction = (feature, resolution) => {
 };
 
 // Style for cities
-const cityStyleFunction = (feature) => {
+const cityStyleFunction = (feature, resolution) => {
     // default color is red, selected feature is blue and first 8 layers have pre-defined colors
     let color = "rgb(255, 0, 0)";
     if (feature.get("selected")) {
@@ -182,14 +191,17 @@ const cityStyleFunction = (feature) => {
     } else if (feature.get("color")) {
         color = feature.get("color");
     }
-    const width = 5 + feature.get("occurences") * 5;
-
-    return (new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: color,
-            width: width,
-        })
-    }));
+    const width = 5 + Math.sqrt(feature.get("occurences")/parseFloat(nbOfEntries) * sizeRatio);
+    if (width * zoomTreshold > resolution){
+        return (new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: color,
+                width: width,
+            })
+        }));
+    } else {
+        return false;
+    }
 };
 
 // Style for vector during animation
@@ -336,9 +348,10 @@ const filter = (filterId) => {
     document.getElementById("showHideButton" + filterId).innerText = "Hide travels";
     document.getElementById("showHideCitiesButton" + filterId).innerText = "Hide cities";
     vectorLayer.getSource().clear();
-    const url = 'cities.json';
+    const url = 'cities3.json';
     fetch(url).then((response) => response.json()).then((json) => {
         const citiesData = json.cities;
+        nbOfEntries = citiesData.length;
         let previousCity = false;
         citiesData.forEach((city) => {
             const author = document.getElementById("author" + filterId).value.toLowerCase();
@@ -356,11 +369,12 @@ const filter = (filterId) => {
                     const color = colors[filterId];
                     const feature = new ol.Feature({
                         geometry: circle,
-                        text: city.description,
+                        text: city.description + "(1)",
                         finished: true,
                         infos: city.infos,
                         color: color,
                         occurences: 1,
+                        filterId: filterId
                     });
                     citiesLayer.getSource().addFeature(feature);
                     cities[filterId][city.coordinates] = feature;
@@ -368,10 +382,13 @@ const filter = (filterId) => {
                     const feature = cities[filterId][city.coordinates];
                     const occurences = feature.get("occurences") + 1;
                     const infos = feature.get("infos");
+                    const text = city.description + "("+occurences+")";
                     infos.push(city.infos[0]);
                     feature.set("occurences", occurences);
                     feature.set("infos", infos);
+                    feature.set("text", text);
                 }
+                /**
                 if(previousCity &&
                     (previousCity.coordinates[0] !== coordinates[0] || previousCity.coordinates[1] !== coordinates[1])) {
                     const text = `${previousCity.description}-${city.description}`;
@@ -390,12 +407,13 @@ const filter = (filterId) => {
                             text: text,
                             finished: true,
                             infos: city.infos,
-                            color: color,
+                            color: color
                         });
                         vectorLayer.getSource().addFeature(feature);
                     })
                 }
                 previousCity = {coordinates:coordinates, description: city.description};
+                 **/
             }
         });
     });
@@ -513,8 +531,8 @@ const addFilter = () => {
         visible: false,
         opacity: 0.4,
         style: travelStyleFunction,
-        updateWhileAnimating: true, // optional, for instant visual feedback
-        updateWhileInteracting: true // optional, for instant visual feedback
+        updateWhileAnimating: false, // optional, for instant visual feedback
+        updateWhileInteracting: false // optional, for instant visual feedback
     });
     map.addLayer(filterLayer);
 

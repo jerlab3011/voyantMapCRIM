@@ -1,5 +1,8 @@
 body{background-color: #eeeeee
 }
+.map {
+    width: 98%;
+}
 
 .ol-popup {
     position: absolute;
@@ -50,7 +53,7 @@ body{background-color: #eeeeee
 
 .slider {
     -webkit-appearance: none;
-    width: 80%;
+    width: 88%;
     height: 25px;
     background: #d3d3d3;
     outline: none;
