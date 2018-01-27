@@ -1,14 +1,14 @@
 {
     "cities": [
         {
-            "infos": [
+            "infos":
                 {
                     "year": 2017,
                     "url": "http://www.google.com",
                     "title": "veniam laboris",
                     "author": "Jerome Labonte"
                 }
-            ],
+            ,
             "description": "Catherine",
             "coordinates": [
                 "67.7644",
@@ -2244,7 +2244,7 @@
                     "author": "Jerome Labonte"
                 }
             ],
-            "description": "Catherine",
+            "description": "Katherine",
             "coordinates": [
                 "67.7644",
                 "157.8538"

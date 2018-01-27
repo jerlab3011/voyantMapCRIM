@@ -1,3 +1,65 @@
+// Filtering that should be done server side
+const dataFile = 'cities4.json';
+
+// Filtering that should be done server side
+const serverSideFiltering = (author, title, yearBegin, yearEnd, maxResults) => {
+        return fetch(dataFile).then((response) => response.json()).then((json) => {
+        const citiesData = json.cities;
+        const cities = [];
+        const entries = [];
+        let i = 0;
+        citiesData.forEach((city) => {
+            if (city.infos.author.toLowerCase().includes(author) &&
+                city.infos.title.toLowerCase().includes(title) &&
+                (yearBegin === "" || city.infos.year >= yearBegin) &&
+                (yearEnd === "" || city.infos.year <= yearEnd)) {
+                if (!cities[city.coordinates]) {
+                    cities[city.coordinates] = {
+                        description: city.description,
+                        alternates: [],
+                        occurences: [{infos: city.infos, description:city.description, order: i}],
+                        coordinates: city.coordinates
+                    };
+                } else {
+                    const cityObject = cities[city.coordinates];
+                    cityObject.occurences.push({infos: city.infos, description:city.description, order: i});
+                    if (city.description !== cityObject.description && cityObject.alternates.indexOf(city.description) < 0) {
+                        cityObject.alternates.push(city.description);
+                    }
+                }
+            }
+            i++;
+        });
+
+        // Transform key-value array to regular array so it can be sorted
+        const citiesWithoutKey = [];
+        for(coords in cities) {
+            citiesWithoutKey.push(cities[coords]);
+        }
+        citiesWithoutKey.sort((a, b) => {
+            return (b.occurences.length - a.occurences.length)
+        });
+
+        // Keep only the most common location up to maxResults number
+        const cityResults = citiesWithoutKey.splice(0, maxResults);
+
+        // Place all occurences of most common locations in an array and sort them by their order of appearance
+        cityResults.forEach((city) => {
+            city.occurences.forEach((entry) => {
+                entry.coordinates = city.coordinates;
+                entries.push(entry);
+            });
+        });
+        entries.sort((a, b) => {
+            return a.order - b.order
+        });
+        const results = {cities: cityResults, entries: entries};
+
+        // return both lists as a JSON string
+        return resultsJson = JSON.stringify(results);
+        })
+};
+
 // Utility function to get layer by id
 if (ol.Map.prototype.getLayer === undefined) {
     ol.Map.prototype.getLayer = function (id) {
@@ -10,15 +72,20 @@ if (ol.Map.prototype.getLayer === undefined) {
         return layer;
     }
 }
+
+// Maximum number of locations to be returned by the server
+const maxResults = 50;
+
 // Constant that changes how zoomed the map must be for cities with less occurences to appear
 // The lower the value, the sooner small cities will appear
-const zoomTreshold = 50;
+const zoomTreshold = 90;
 
 // Constant that changes how bigger cities with more occurences are compared to cities with fewer
 // The higher the value, the bigger the difference will be
 const sizeRatio = 50000;
 
 // global variable for number of location occurences found in corpus
+// TODO keep track of total entries number
 let nbOfEntries = 0;
 
 // Speed of vectors drawing
@@ -41,7 +108,7 @@ let cities = [];
 
 let citiesShown = [];
 
-const coordinatesSequence = [];
+let coordinatesSequence = [];
 const travels = [];
 
 // Colors of the different filters
@@ -61,6 +128,8 @@ const container = document.getElementById('popup');
 const content = document.getElementById('popup-content');
 const closer = document.getElementById('popup-closer');
 
+
+// TODO set max size for popup and make it scrollable
 // Create an overlay to anchor the popup to the map.
 const overlay = new ol.Overlay({
     element: container,
@@ -119,21 +188,33 @@ map.on('singleclick', (event) => {
     const features = map.getFeaturesAtPixel(pixel);
     if(features) {
         let infos = "<ul>";
-        let feature = undefined;
-        features.forEach( (feat) => {
-            if( feat.getGeometry().getType() === "Circle" && !feat.get("selected")) {
-                feature = feat;
+        features.forEach( (feature) => {
+            if( feature.getGeometry().getType() === "Circle" && feature.get("selected")) {
+                const featureOccurences = feature.get("occurences");
+                featureOccurences.forEach(entry => {
+                    infos += `<li>${entry.description} : ${entry.infos.author}, <a href=${entry.infos.url} target='_blank'>${entry.infos.title}</a>, ${entry.infos.year} ${entry.order}</li>`;
+                });
+                let header = feature.get("text");
+                infos += "</ul>";
+                if(feature.get("alternates").length > 0) {
+                    header += ` (${feature.get("alternates")})`;
+                }
+                const coordinate = event.coordinate;
+                content.innerHTML = `<h3>${header}</h3>${infos}`;
+                overlay.setPosition(coordinate);
+            } else if(feature.get("selected")) {
+                const featureOccurences = feature.get("occurences");
+                featureOccurences.forEach(entry => {
+                    infos += `<li>from : ${entry.from.description} : ${entry.from.infos.author}, <a href=${entry.from.infos.url} target='_blank'>${entry.from.infos.title}</a>, ${entry.from.infos.year} ${entry.from.order} ,
+                                    to: ${entry.to.description} : ${entry.to.infos.author}, <a href=${entry.to.infos.url} target='_blank'>${entry.to.infos.title}</a>, ${entry.to.infos.year} ${entry.to.order}</li>`;
+                });
+                let header = feature.get("text");
+                infos += "</ul>";
+                const coordinate = event.coordinate;
+                content.innerHTML = `<h3>${header}</h3>${infos}`;
+                overlay.setPosition(coordinate);
             }
         });
-        const featureInfos = feature.get("infos");
-        featureInfos.forEach(info => {
-            infos += `<li>${info.author}, <a href=${info.url} target='_blank'>${info.title}</a>, ${info.year}</li>`;
-        });
-        const header = feature.get("text");
-        infos += "</ul>";
-        const coordinate = event.coordinate;
-        content.innerHTML = `<h3>${header}</h3>${infos}`;
-        overlay.setPosition(coordinate);
     }
 });
 
@@ -155,9 +236,11 @@ const travelStyleFunction = (feature, resolution) => {
         color = feature.get("color");
     }
 
+
+    // TODO use ponderation to establish travel width
     const stroke = new ol.style.Stroke({
         color: color,
-        width: 2 + feature.get("occurences") * 0.1
+        width: 2 + feature.get("occurences").length * 0.5
     });
 
     const styles = [
@@ -191,7 +274,7 @@ const travelStyleFunction = (feature, resolution) => {
 };
 
 // Style for cities
-const cityStyleFunction = (feature, resolution) => {
+const cityStyleFunction = (feature) => {
     const zoom = map.getView().getZoom();
     // default color is red, selected feature is blue and first 8 layers have pre-defined colors
     let color = "rgb(255, 0, 0)";
@@ -200,7 +283,7 @@ const cityStyleFunction = (feature, resolution) => {
     } else if (feature.get("color")) {
         color = feature.get("color");
     }
-    const width = 5 + Math.sqrt(feature.get("occurences")/parseFloat(nbOfEntries) * sizeRatio);
+    const width = 5 + Math.sqrt(feature.get("occurences").length/parseFloat(nbOfEntries) * sizeRatio);
     if (width * zoom > zoomTreshold){
         cities[feature.get("filterId")][feature.get("coordinates")][1] = true;
         return (new ol.style.Style({
@@ -329,8 +412,10 @@ map.on('pointermove', (event) => {
             });
 
             const selectedFeature = new ol.Feature({
+                text: feature.get("text"),
                 geometry: feature.getGeometry(),
                 occurences: feature.get("occurences"),
+                alternates: feature.get("alternates"),
                 selected: true,
                 filterId: feature.get("filterId"),
                 coordinates: feature.get("coordinates")
@@ -362,85 +447,38 @@ const filter = (filterId) => {
     document.getElementById("showHideButton" + filterId).innerText = "Hide travels";
     document.getElementById("showHideCitiesButton" + filterId).innerText = "Hide cities";
     vectorLayer.getSource().clear();
-    const url = 'cities3.json';
     map.getView().on("change:resolution", () => {
         //TODO find the right event to listen to before calling the function
         window.setTimeout(() => generateTravels(filterId), 500);
     });
-    fetch(url).then((response) => response.json()).then((json) => {
-        const citiesData = json.cities;
-        nbOfEntries = citiesData.length;
-        let previousCity = false;
-        citiesData.forEach((city) => {
-            const author = document.getElementById("author" + filterId).value.toLowerCase();
-            const title = document.getElementById("title" + filterId).value.toLowerCase();
-            const yearBegin = document.getElementById("yearBegin" + filterId).value;
-            const yearEnd = document.getElementById("yearEnd" + filterId).value;
-            if(city.infos[0].author.toLowerCase().includes(author) &&
-                city.infos[0].title.toLowerCase().includes(title) &&
-                (yearBegin === "" || city.infos[0].year >= yearBegin) &&
-                (yearEnd === "" || city.infos[0].year <= yearEnd)) {
-                const coordinates = [parseFloat(city.coordinates[1]), parseFloat(city.coordinates[0])];
-                coordinatesSequence[filterId].push(coordinates);
-                if(!cities[filterId][coordinates]) {
-                    const circle = new ol.geom.Circle(coordinates);
-                    circle.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
-                    const color = colors[filterId];
-                    const feature = new ol.Feature({
-                        geometry: circle,
-                        description: city.description,
-                        text: city.description + "(1)",
-                        finished: true,
-                        infos: city.infos,
-                        color: color,
-                        occurences: 1,
-                        filterId: filterId,
-                        coordinates: coordinates
-                    });
-                    citiesLayer.getSource().addFeature(feature);
-                    cities[filterId][coordinates] = [feature, true];
-                } else {
-                    const feature = cities[filterId][coordinates][0];
-                    const occurences = feature.get("occurences") + 1;
-                    const infos = feature.get("infos");
-                    const text = city.description + "("+occurences+")";
-                    infos.push(city.infos[0]);
-                    feature.set("occurences", occurences);
-                    feature.set("infos", infos);
-                    feature.set("text", text);
-                }
-                /**
-                if(previousCity &&
-                    (previousCity.coordinates[0] !== coordinates[0] || previousCity.coordinates[1] !== coordinates[1])) {
-                    const text = `${previousCity.description}-${city.description}`;
-                    // create an arc circle between the two locations
-                    const arcGenerator = new arc.GreatCircle(
-                        {x: previousCity.coordinates[0], y: previousCity.coordinates[1]},
-                        {x: coordinates[0], y: coordinates[1]});
-
-                    const arcLine = arcGenerator.Arc(pointsPerArc, {offset: 100});
-                    arcLine.geometries.forEach(geometry => {
-                        const line = new ol.geom.LineString(geometry.coords);
-                        line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
-                        const color = colors[filterId];
-                        const feature = new ol.Feature({
-                            geometry: line,
-                            text: text,
-                            finished: true,
-                            infos: city.infos,
-                            color: color,
-                            filterId: filterId,
-                            start: previousCity.coordinates,
-                            end: coordinates
-                        });
-                        vectorLayer.getSource().addFeature(feature);
-                    })
-                }
-                previousCity = {coordinates:coordinates, description: city.description};
-                 **/
-            }
+    const author = document.getElementById("author" + filterId).value.toLowerCase();
+    const title = document.getElementById("title" + filterId).value.toLowerCase();
+    const yearBegin = document.getElementById("yearBegin" + filterId).value;
+    const yearEnd = document.getElementById("yearEnd" + filterId).value;
+    serverSideFiltering(author, title, yearBegin, yearEnd, maxResults).then(results => JSON.parse(results)).then(results => {
+        nbOfEntries = results.entries.length;
+        coordinatesSequence[filterId] = results.entries;
+        results.cities.forEach((city) => {
+            const coordinates = [parseFloat(city.coordinates[1]), parseFloat(city.coordinates[0])];
+            const circle = new ol.geom.Circle(coordinates);
+            circle.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
+            const color = colors[filterId];
+            const feature = new ol.Feature({
+                geometry: circle,
+                description: city.description,
+                alternates: city.alternates,
+                text: city.description + "(" + city.occurences.length + ")",
+                finished: true,
+                occurences: city.occurences,
+                color: color,
+                filterId: filterId,
+                coordinates: coordinates
+            });
+            citiesLayer.getSource().addFeature(feature);
+            cities[filterId][coordinates] = [feature, true];
         });
     });
+
     //TODO find the right event to listen to before calling the function
     window.setTimeout(() => generateTravels(filterId), 100);
 
@@ -456,49 +494,61 @@ const generateTravels = (filterId) => {
     const vectorLayer = map.getLayer("layer" + filterId);
     vectorLayer.getSource().clear();
     travels[filterId] = [];
-    let previousCoordinates = coordinatesSequence[filterId][0];
-    for (let i = 1; i < coordinatesSequence[filterId].length; i++) {
-        const coordinates = coordinatesSequence[filterId][i];
-        const key = [previousCoordinates, coordinates];
-        if ((previousCoordinates[0] !== coordinates[0] || previousCoordinates[1] !== coordinates[1]) &&
-            cities[filterId][coordinates][1]) {
-            if(!travels[filterId][key]) {
-                const previousCity = cities[filterId][previousCoordinates][0].get("description");
-                const nextCity = cities[filterId][coordinates][0].get("description");
-                const description = `${previousCity}-${nextCity}`;
-                // create an arc circle between the two locations
-                const arcGenerator = new arc.GreatCircle(
-                    {x: previousCoordinates[0], y: previousCoordinates[1]},
-                    {x: coordinates[0], y: coordinates[1]});
-
-                const arcLine = arcGenerator.Arc(pointsPerArc, {offset: 100});
-                arcLine.geometries.forEach(geometry => {
-                    const line = new ol.geom.LineString(geometry.coords);
-                    line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
-                    const color = colors[filterId];
-                    const feature = new ol.Feature({
-                        geometry: line,
-                        description: description,
-                        text: description + "(1)",
-                        finished: true,
-                        occurences:1,
-                        //infos: city.infos,
-                        color: color,
-                        filterId: filterId,
-                        start: previousCoordinates,
-                        end: coordinates
-                    });
-                    vectorLayer.getSource().addFeature(feature);
-                    travels[filterId][key] = feature;
-                });
-                previousCoordinates = coordinates;
-            } else {
-                const occurences = travels[filterId][key].get("occurences");
-                const text = travels[filterId][key].get("description") + "(" + occurences + ")";
-                travels[filterId][key].set("occurences", occurences + 1);
-                travels[filterId][key].set("text", text);
+    let previousCoordinates = undefined;
+    let foundStart = false;
+    let previousEntry = undefined;
+    for (let i = 0; i < coordinatesSequence[filterId].length; i++) {
+        const entry = coordinatesSequence[filterId][i];
+        if(!foundStart) {
+            previousCoordinates = [entry.coordinates[1], entry.coordinates[0]];
+            if(cities[filterId][previousCoordinates][1]) {
+                previousEntry = entry;
+                foundStart = true;
             }
+        } else {
+            const coordinates = [entry.coordinates[1], entry.coordinates[0]];
+            const key = [previousCoordinates, coordinates];
+            if ((previousCoordinates[0] !== coordinates[0] || previousCoordinates[1] !== coordinates[1]) &&
+                cities[filterId][coordinates][1]) {
+                if (!travels[filterId][key]) {
+                    const previousCity = cities[filterId][previousCoordinates][0].get("description");
+                    const nextCity = cities[filterId][coordinates][0].get("description");
+                    const description = `${previousCity}-${nextCity}`;
+                    // create an arc circle between the two locations
+                    const arcGenerator = new arc.GreatCircle(
+                        {x: previousCoordinates[0], y: previousCoordinates[1]},
+                        {x: coordinates[0], y: coordinates[1]});
 
+                    const arcLine = arcGenerator.Arc(pointsPerArc, {offset: 100});
+                    arcLine.geometries.forEach(geometry => {
+                        const line = new ol.geom.LineString(geometry.coords);
+                        line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
+                        const color = colors[filterId];
+                        const feature = new ol.Feature({
+                            geometry: line,
+                            description: description,
+                            text: description + "(1)",
+                            finished: true,
+                            occurences: [{from: previousEntry, to: entry}],
+                            color: color,
+                            filterId: filterId,
+                            start: previousCoordinates,
+                            end: coordinates
+                        });
+                        vectorLayer.getSource().addFeature(feature);
+                        travels[filterId][key] = feature;
+                    });
+                    previousCoordinates = coordinates;
+                    previousEntry = entry;
+                } else {
+                    const occurences = travels[filterId][key].get("occurences");
+                    occurences.push({from: previousEntry, to: entry});
+                    const text = travels[filterId][key].get("description") + "(" + occurences.length + ")";
+                    //travels[filterId][key].set("occurences", occurences.push({from: previousEntry, to: entry}));
+                    travels[filterId][key].set("text", text);
+                }
+
+            }
         }
     }
 };
