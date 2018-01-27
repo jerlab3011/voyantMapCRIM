@@ -85,8 +85,8 @@ const zoomTreshold = 90;
 const sizeRatio = 50000;
 
 // global variable for number of location occurences found in corpus
-// TODO keep track of total entries number
-let nbOfEntries = 0;
+let totalEntries = 0;
+const nbOfEntries = [];
 
 // Speed of vectors drawing
 let pointsPerMs = 0.3;
@@ -283,7 +283,7 @@ const cityStyleFunction = (feature) => {
     } else if (feature.get("color")) {
         color = feature.get("color");
     }
-    const width = 5 + Math.sqrt(feature.get("occurences").length/parseFloat(nbOfEntries) * sizeRatio);
+    const width = 5 + Math.sqrt(feature.get("occurences").length/parseFloat(totalEntries) * sizeRatio);
     if (width * zoom > zoomTreshold){
         cities[feature.get("filterId")][feature.get("coordinates")][1] = true;
         return (new ol.style.Style({
@@ -456,7 +456,10 @@ const filter = (filterId) => {
     const yearBegin = document.getElementById("yearBegin" + filterId).value;
     const yearEnd = document.getElementById("yearEnd" + filterId).value;
     serverSideFiltering(author, title, yearBegin, yearEnd, maxResults).then(results => JSON.parse(results)).then(results => {
-        nbOfEntries = results.entries.length;
+        nbOfEntries[filterId] = results.entries.length;
+        totalEntries = 0;
+        nbOfEntries.forEach(entries => {totalEntries += entries});
+        console.log(totalEntries);
         coordinatesSequence[filterId] = results.entries;
         results.cities.forEach((city) => {
             const coordinates = [parseFloat(city.coordinates[1]), parseFloat(city.coordinates[0])];
@@ -605,6 +608,9 @@ const stopAnimation = (filterId) => {
 
 // Clear filter fields and layer
 const clearFilter = (filterId) => {
+    nbOfEntries[filterId] = 0;
+    totalEntries = 0;
+    nbOfEntries.forEach(entries => {totalEntries += entries});
     cities[filterId] = {};
     timedEvents[filterId].forEach(event => window.clearTimeout(event));
     document.getElementById("author" + filterId).value = "";
