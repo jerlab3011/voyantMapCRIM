@@ -106,9 +106,8 @@ let timedEvents = [[]];
 // Array to contain city features
 let cities = [];
 
-let citiesShown = [];
-
 let coordinatesSequence = [];
+
 const travels = [];
 
 // Colors of the different filters
@@ -275,7 +274,6 @@ const travelStyleFunction = (feature, resolution) => {
 
 // Style for cities
 const cityStyleFunction = (feature) => {
-    const zoom = map.getView().getZoom();
     // default color is red, selected feature is blue and first 8 layers have pre-defined colors
     let color = "rgb(255, 0, 0)";
     if (feature.get("selected")) {
@@ -283,17 +281,14 @@ const cityStyleFunction = (feature) => {
     } else if (feature.get("color")) {
         color = feature.get("color");
     }
-    const width = 5 + Math.sqrt(feature.get("occurences").length/parseFloat(totalEntries) * sizeRatio);
-    if (width * zoom > zoomTreshold){
-        cities[feature.get("filterId")][feature.get("coordinates")][1] = true;
+    if(feature.get("visible")) {
         return (new ol.style.Style({
             stroke: new ol.style.Stroke({
                 color: color,
-                width: width,
+                width: feature.get("width"),
             })
         }));
     } else {
-        cities[feature.get("filterId")][feature.get("coordinates")][1] = false;
         return false;
     }
 };
@@ -418,7 +413,9 @@ map.on('pointermove', (event) => {
                 alternates: feature.get("alternates"),
                 selected: true,
                 filterId: feature.get("filterId"),
-                coordinates: feature.get("coordinates")
+                coordinates: feature.get("coordinates"),
+                width: feature.get("width"),
+                visible: feature.get("visible")
             });
             selectedLayer.getSource().addFeature(selectedFeature);
             const geometry = feature.getGeometry();
@@ -447,19 +444,25 @@ const filter = (filterId) => {
     document.getElementById("showHideButton" + filterId).innerText = "Hide travels";
     document.getElementById("showHideCitiesButton" + filterId).innerText = "Hide cities";
     vectorLayer.getSource().clear();
-    map.getView().on("change:resolution", () => {
-        //TODO find the right event to listen to before calling the function
-        window.setTimeout(() => generateTravels(filterId), 500);
-    });
     const author = document.getElementById("author" + filterId).value.toLowerCase();
     const title = document.getElementById("title" + filterId).value.toLowerCase();
     const yearBegin = document.getElementById("yearBegin" + filterId).value;
     const yearEnd = document.getElementById("yearEnd" + filterId).value;
+
+    map.getView().on("change:resolution", () => {
+        citiesLayer.getSource().getFeatures().forEach(feature => {
+            const zoom = map.getView().getZoom();
+            const width = 5 + Math.sqrt(feature.get("occurences").length/parseFloat(totalEntries) * sizeRatio);
+            feature.set("width", width);
+            feature.set("visible", width * zoom > zoomTreshold);
+        });
+        generateTravels(filterId);
+    });
+
     serverSideFiltering(author, title, yearBegin, yearEnd, maxResults).then(results => JSON.parse(results)).then(results => {
         nbOfEntries[filterId] = results.entries.length;
         totalEntries = 0;
         nbOfEntries.forEach(entries => {totalEntries += entries});
-        console.log(totalEntries);
         coordinatesSequence[filterId] = results.entries;
         results.cities.forEach((city) => {
             const coordinates = [parseFloat(city.coordinates[1]), parseFloat(city.coordinates[0])];
@@ -478,13 +481,13 @@ const filter = (filterId) => {
                 coordinates: coordinates
             });
             citiesLayer.getSource().addFeature(feature);
-            cities[filterId][coordinates] = [feature, true];
+            cities[filterId][coordinates] = feature;
         });
+    }).then(() => {
+        // Trigger calculation if feature sizes
+        const resolution = map.getView().getResolution() + 1;
+        map.getView().setResolution(resolution);
     });
-
-    //TODO find the right event to listen to before calling the function
-    window.setTimeout(() => generateTravels(filterId), 100);
-
     document.getElementById("showHideButton" + filterId).disabled = false;
     document.getElementById("showHideCitiesButton" + filterId).disabled = false;
     const button = document.getElementById("animateButton"+filterId);
@@ -494,63 +497,64 @@ const filter = (filterId) => {
 };
 
 const generateTravels = (filterId) => {
-    const vectorLayer = map.getLayer("layer" + filterId);
-    vectorLayer.getSource().clear();
-    travels[filterId] = [];
-    let previousCoordinates = undefined;
-    let foundStart = false;
-    let previousEntry = undefined;
-    for (let i = 0; i < coordinatesSequence[filterId].length; i++) {
-        const entry = coordinatesSequence[filterId][i];
-        if(!foundStart) {
-            previousCoordinates = [entry.coordinates[1], entry.coordinates[0]];
-            if(cities[filterId][previousCoordinates][1]) {
-                previousEntry = entry;
-                foundStart = true;
-            }
-        } else {
-            const coordinates = [entry.coordinates[1], entry.coordinates[0]];
-            const key = [previousCoordinates, coordinates];
-            if ((previousCoordinates[0] !== coordinates[0] || previousCoordinates[1] !== coordinates[1]) &&
-                cities[filterId][coordinates][1]) {
-                if (!travels[filterId][key]) {
-                    const previousCity = cities[filterId][previousCoordinates][0].get("description");
-                    const nextCity = cities[filterId][coordinates][0].get("description");
-                    const description = `${previousCity}-${nextCity}`;
-                    // create an arc circle between the two locations
-                    const arcGenerator = new arc.GreatCircle(
-                        {x: previousCoordinates[0], y: previousCoordinates[1]},
-                        {x: coordinates[0], y: coordinates[1]});
-
-                    const arcLine = arcGenerator.Arc(pointsPerArc, {offset: 100});
-                    arcLine.geometries.forEach(geometry => {
-                        const line = new ol.geom.LineString(geometry.coords);
-                        line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
-                        const color = colors[filterId];
-                        const feature = new ol.Feature({
-                            geometry: line,
-                            description: description,
-                            text: description + "(1)",
-                            finished: true,
-                            occurences: [{from: previousEntry, to: entry}],
-                            color: color,
-                            filterId: filterId,
-                            start: previousCoordinates,
-                            end: coordinates
-                        });
-                        vectorLayer.getSource().addFeature(feature);
-                        travels[filterId][key] = feature;
-                    });
-                    previousCoordinates = coordinates;
+    if(Object.keys(cities[filterId]).length > 0){
+        const vectorLayer = map.getLayer("layer" + filterId);
+        vectorLayer.getSource().clear();
+        travels[filterId] = [];
+        let previousCoordinates = undefined;
+        let foundStart = false;
+        let previousEntry = undefined;
+        for (let i = 0; i < coordinatesSequence[filterId].length; i++) {
+            const entry = coordinatesSequence[filterId][i];
+            if (!foundStart) {
+                previousCoordinates = [entry.coordinates[1], entry.coordinates[0]];
+                if (cities[filterId][previousCoordinates].get("visible")) {
                     previousEntry = entry;
-                } else {
-                    const occurences = travels[filterId][key].get("occurences");
-                    occurences.push({from: previousEntry, to: entry});
-                    const text = travels[filterId][key].get("description") + "(" + occurences.length + ")";
-                    //travels[filterId][key].set("occurences", occurences.push({from: previousEntry, to: entry}));
-                    travels[filterId][key].set("text", text);
+                    foundStart = true;
                 }
+            } else {
+                const coordinates = [entry.coordinates[1], entry.coordinates[0]];
+                const key = [previousCoordinates, coordinates];
+                if ((previousCoordinates[0] !== coordinates[0] || previousCoordinates[1] !== coordinates[1]) &&
+                    cities[filterId][coordinates].get("visible")) {
+                    if (!travels[filterId][key]) {
+                        const previousCity = cities[filterId][previousCoordinates].get("description");
+                        const nextCity = cities[filterId][coordinates].get("description");
+                        const description = `${previousCity}-${nextCity}`;
+                        // create an arc circle between the two locations
+                        const arcGenerator = new arc.GreatCircle(
+                            {x: previousCoordinates[0], y: previousCoordinates[1]},
+                            {x: coordinates[0], y: coordinates[1]});
 
+                        const arcLine = arcGenerator.Arc(pointsPerArc, {offset: 100});
+                        arcLine.geometries.forEach(geometry => {
+                            const line = new ol.geom.LineString(geometry.coords);
+                            line.transform(ol.proj.get('EPSG:4326'), ol.proj.get('EPSG:3857'));
+                            const color = colors[filterId];
+                            const feature = new ol.Feature({
+                                geometry: line,
+                                description: description,
+                                text: description + "(1)",
+                                finished: true,
+                                occurences: [{from: previousEntry, to: entry}],
+                                color: color,
+                                filterId: filterId,
+                                start: previousCoordinates,
+                                end: coordinates
+                            });
+                            vectorLayer.getSource().addFeature(feature);
+                            travels[filterId][key] = feature;
+                        });
+                        previousCoordinates = coordinates;
+                        previousEntry = entry;
+                    } else {
+                        const occurences = travels[filterId][key].get("occurences");
+                        occurences.push({from: previousEntry, to: entry});
+                        const text = travels[filterId][key].get("description") + "(" + occurences.length + ")";
+                        travels[filterId][key].set("text", text);
+                    }
+
+                }
             }
         }
     }
@@ -591,11 +595,10 @@ const animateLayer = (filterId) => {
     button.innerText = "Stop";
     button.onclick = () => stopAnimation(filterId);
     // event to swich back button to animate once animation is done
-    // TODO change timeout to reflect only shown features
     const restoreAnimate = window.setTimeout(() => {
         button.innerText = "Animate";
         button.onclick = () => animateLayer(filterId);
-    }, delayBetweenVectors * (filterLayer.getSource().getFeatures().length - 1) );
+    }, delayBetweenVectors * (filterLayer.getSource().getFeatures().length) );
     timedEvents[filterId].push(restoreAnimate);
 };
 
@@ -611,7 +614,7 @@ const clearFilter = (filterId) => {
     nbOfEntries[filterId] = 0;
     totalEntries = 0;
     nbOfEntries.forEach(entries => {totalEntries += entries});
-    cities[filterId] = {};
+    cities[filterId] = [];
     timedEvents[filterId].forEach(event => window.clearTimeout(event));
     document.getElementById("author" + filterId).value = "";
     document.getElementById("title" + filterId).value = "";
@@ -626,6 +629,9 @@ const clearFilter = (filterId) => {
     button.disabled = true;
     button.innerText = "Animate";
     button.onclick = () => animateLayer(filterId);
+    // Trigger calculation if feature sizes
+    const resolution = map.getView().getResolution() + 1;
+    map.getView().setResolution(resolution);
 };
 
 // Called when the travels visibility button is pressed.
@@ -642,7 +648,7 @@ const toggleTravelsVisibility = (filterId) => {
 
 // Called when the cities visibility button is pressed.
 const toggleCitiesVisibility = (filterId) => {
-    cities[filterId] = {};
+    cities[filterId] = [];
     const toggledLayer = map.getLayer("cities" + filterId);
     if (toggledLayer.getVisible()) {
         document.getElementById("showHideCitiesButton" + filterId).innerText = "Show cities";
@@ -656,7 +662,6 @@ const toggleCitiesVisibility = (filterId) => {
 // Called when the Add Filter button is pressed. Create new fields and layer.
 const addFilter = () => {
     timedEvents[filterCount] = [];
-    citiesShown[filterCount] = [];
     travels[filterCount] = [];
     const filterLayer = new ol.layer.Vector({
         source: new ol.source.Vector({
@@ -667,8 +672,8 @@ const addFilter = () => {
         visible: false,
         opacity: 0.4,
         style: travelStyleFunction,
-        updateWhileAnimating: false, // optional, for instant visual feedback
-        updateWhileInteracting: false // optional, for instant visual feedback
+        updateWhileAnimating: false, // optional, might improve performance
+        updateWhileInteracting: false // optional, might improve performance
     });
     map.addLayer(filterLayer);
 
