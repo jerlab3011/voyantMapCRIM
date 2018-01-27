@@ -236,11 +236,11 @@ const travelStyleFunction = (feature, resolution) => {
         color = feature.get("color");
     }
 
+    const width = 0.5 + Math.sqrt(feature.get("occurences").length/parseFloat(totalEntries) * sizeRatio * 0.2);
 
-    // TODO use ponderation to establish travel width
     const stroke = new ol.style.Stroke({
         color: color,
-        width: 2 + feature.get("occurences").length * 0.5
+        width: width
     });
 
     const styles = [
